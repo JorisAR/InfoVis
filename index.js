@@ -1,3 +1,5 @@
+const { getDataset } = require('./data_processing/data_processing.js');
+
 
 var coords = [0, 100, 200, 300, 400];
 
@@ -23,12 +25,9 @@ initcircles.enter()
 
 
 function moveCircles() {
+  getDataset().then(data => console.log(data));
 
-  printArtists()
-
-  getMeanDanceability().then(meanDanceability => console.log(meanDanceability));
-
-	//var circles = vis.selectAll("circle")
+	var circles = vis.selectAll("circle")
 
   if (centered) {
     circles.transition()

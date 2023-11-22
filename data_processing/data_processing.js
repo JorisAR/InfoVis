@@ -1,5 +1,3 @@
-
-
 async function getDataset() {
     try {
       const data = await d3.csv("data/spotify_songs.csv");
@@ -59,3 +57,5 @@ async function getMeanDanceability() {
     const artists = await getArtists()
     console.log(artists)
   }
+
+  module.exports.getDataset = getDataset;
