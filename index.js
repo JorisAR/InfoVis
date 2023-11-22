@@ -1,8 +1,11 @@
+
 var coords = [0, 100, 200, 300, 400];
 
 var centered = false;
 
 var vis = d3.select("#vis");
+
+
 
 var initcircles = vis.selectAll("circle")
   .data(coords);
@@ -18,9 +21,14 @@ initcircles.enter()
   })
   .attr("r", "25");
 
+
 function moveCircles() {
 
-	var circles = vis.selectAll("circle")
+  printArtists()
+
+  getMeanDanceability().then(meanDanceability => console.log(meanDanceability));
+
+	//var circles = vis.selectAll("circle")
 
   if (centered) {
     circles.transition()
