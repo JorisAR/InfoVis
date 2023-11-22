@@ -1,0 +1,22 @@
+body {
+    background: #F5F5F5;
+  }
+  
+  div {
+    margin: 20px;
+  }
+  
+  h1 {
+    color: black;
+    font-family: "Helvetica";
+    font-size: 20px;
+  }
+  
+  svg {
+    background: white;
+  }
+  
+  .red {
+    fill: red;
+  }
+  
