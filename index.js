@@ -1,4 +1,5 @@
-const { getDataset } = require('./data_processing/data_processing.js');
+import * as d3 from "d3";
+// import {getDataset} from "./data_processing/data_processing"
 
 
 var coords = [0, 100, 200, 300, 400];
@@ -6,8 +7,6 @@ var coords = [0, 100, 200, 300, 400];
 var centered = false;
 
 var vis = d3.select("#vis");
-
-
 
 var initcircles = vis.selectAll("circle")
   .data(coords);
@@ -23,9 +22,7 @@ initcircles.enter()
   })
   .attr("r", "25");
 
-
 function moveCircles() {
-  getDataset().then(data => console.log(data));
 
 	var circles = vis.selectAll("circle")
 

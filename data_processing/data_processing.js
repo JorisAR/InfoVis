@@ -1,4 +1,6 @@
-async function getDataset() {
+//import * as d3 from "d3";
+
+export async function getDataset() {
     try {
       const data = await d3.csv("data/spotify_songs.csv");
       return data;
@@ -53,9 +55,6 @@ async function getMeanDanceability() {
 }
 
 
-  async function printArtists() {
+async function printArtists() {
     const artists = await getArtists()
-    console.log(artists)
-  }
-
-  module.exports.getDataset = getDataset;
+    console.log(artists)  }
