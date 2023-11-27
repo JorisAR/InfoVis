@@ -1,44 +1,59 @@
-import * as d3 from "d3";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const d3 = __importStar(require("d3"));
 // import {getDataset} from "./data_processing/data_processing"
-
-
 var coords = [0, 100, 200, 300, 400];
-
 var centered = false;
-
 var vis = d3.select("#vis");
-
 var initcircles = vis.selectAll("circle")
-  .data(coords);
-
+    .data(coords);
 initcircles.enter()
-  .append("circle")
-  .attr("class", "red")
-  .attr("cx", function(d) {
+    .append("circle")
+    .attr("class", "red")
+    .attr("cx", function (d) {
     return d;
-  })
-  .attr("cy", function(d) {
+})
+    .attr("cy", function (d) {
     return d;
-  })
-  .attr("r", "25");
-
+})
+    .attr("r", "25");
 function moveCircles() {
-
-	var circles = vis.selectAll("circle")
-
-  if (centered) {
-    circles.transition()
-      .duration(1000)
-      .attr('cx', function(d) {
-        return d;
-      });
-
-    centered = false;
-  } else {
-    circles.transition()
-      .duration(1000)
-      .attr('cx', 200);
-
-    centered = true;
-  }
+    var circles = vis.selectAll("circle");
+    if (centered) {
+        circles.transition()
+            .duration(1000)
+            .attr('cx', function (d) {
+            return d;
+        });
+        centered = false;
+    }
+    else {
+        circles.transition()
+            .duration(1000)
+            .attr('cx', 200);
+        centered = true;
+    }
 }
