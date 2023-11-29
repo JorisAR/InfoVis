@@ -20,6 +20,11 @@ async function getDataset() {
   return data;
 }
 
+async function getRandomDataset(n) {
+  const data = await d3.csv("../data/spotify_songs.csv", conversor);
+  const data1 = d3.shuffle(data);
+  return data1.slice(0,n);
+}
 
 
 function onlyUnique(value, index, array) {
@@ -72,61 +77,8 @@ async function printArtists() {
   const artists = await getArtists()
   console.log(artists)
 }
-function* generator(points){
-  for (let item of points) {
-    yield item;
-  }
-}
 
-var brush = function brush(cell, circle, svg, {padding, size, x, y, columns}) {
-  const brush = d3.brush()
-      .extent([[padding / 2, padding / 2], [size - padding / 2, size - padding / 2]])
-      .on("start", brushstarted)
-      .on("brush", brushed)
-      .on("end", brushended);
-
-  cell.call(brush);
-
-  let brushCell;
-
-  // Clear the previously-active brush, if any.
-  function brushstarted() {
-    if (brushCell !== this) {
-      d3.select(brushCell).call(brush.move, null);
-      brushCell = this;
-    }
-  }
-
-  // Highlight the selected circles.
-  function brushed({selection}, [i, j]) {
-    let selected = [];
-    if (selection) {
-      const [[x0, y0], [x1, y1]] = selection; 
-      circle.classed("hidden",
-        d => x0 > x[i](d[columns[i]])
-          || x1 < x[i](d[columns[i]])
-          || y0 > y[j](d[columns[j]])
-          || y1 < y[j](d[columns[j]]));
-      selected = data.filter(
-        d => x0 < x[i](d[columns[i]])
-          && x1 > x[i](d[columns[i]])
-          && y0 < y[j](d[columns[j]])
-          && y1 > y[j](d[columns[j]]));
-    }
-    svg.property("value", selected).dispatch("input");
-  }
-
-  // If the brush is empty, select all circles.
-  function brushended({selection}) {
-    if (selection) return;
-    svg.property("value", []).dispatch("input");
-    circle.classed("hidden", false);
-  }
-}
-
-
-
-function createScatterplotMatrix(data1){ 
+function createScatterplotMatrix(data1, container){ 
   var data = data1.slice(0, 300);
   // Specify the chart’s dimensions.
   const width = 2000
@@ -134,15 +86,15 @@ function createScatterplotMatrix(data1){
   const padding = 28;
   const columns = data1.columns.filter(d => typeof data[0][d] === "number");
   const size = (width - (columns.length + 1) * padding) / columns.length + padding;
-  console.log(columns);
 
   // Define the horizontal scales (one for each row).
   const x = columns.map(c => d3.scaleLinear()
       .domain(d3.extent(data, d => d[c]))
-      .rangeRound([padding / 2, size - padding / 2]))
-
+      .rangeRound([padding / 2, size - padding / 2]));
+  
   // Define the companion vertical scales (one for each column).
   const y = x.map(x => x.copy().range([size - padding / 2, padding / 2]));
+
 
   // Define the color scale.
   const color = d3.scaleOrdinal()
@@ -210,9 +162,6 @@ function createScatterplotMatrix(data1){
       .attr("fill-opacity", 0.7)
       .attr("fill", d => color(d.playlist_name));
 
-  // Ignore this line if you don't need the brushing behavior.
-  cell.call(brush, circle, svg, {padding, size, x, y, columns});
-
   svg.append("g")
       .style("font", "bold 10px sans-serif")
       .style("pointer-events", "none")
@@ -233,7 +182,6 @@ function createPlot(){
   getDataset().then(function(data) {
     // Create your scatterplot matrix here
     var scatterplotMatrix = createScatterplotMatrix(data); // Replace this with your actual code
-    const selection = generator(scatterplotMatrix);
     // Attach the scatterplot matrix to your HTML
     d3.select("#scatterplot-matrix").append(() => scatterplotMatrix);
 });
