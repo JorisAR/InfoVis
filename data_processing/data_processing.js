@@ -86,6 +86,7 @@ function createScatterplotMatrix(data1, container){
   const padding = 28;
   const columns = data1.columns.filter(d => typeof data[0][d] === "number");
   const size = (width - (columns.length + 1) * padding) / columns.length + padding;
+  console.log(data1.columns)
 
   // Define the horizontal scales (one for each row).
   const x = columns.map(c => d3.scaleLinear()
