@@ -1,5 +1,6 @@
 //import * as d3 from "d3";
 
+<<<<<<< Updated upstream
 export async function getDataset() {
     try {
       const data = await d3.csv("data/spotify_songs.csv");
@@ -12,6 +13,13 @@ export async function getDataset() {
   function onlyUnique(value, index, array) {
     return array.indexOf(value) === index;
   }
+=======
+async function getDataset() {
+  const data = await d3.csv("../data/spotify_songs.csv", conversor);
+  console.log(data)
+  return data;
+}
+>>>>>>> Stashed changes
 
   // Function to return the "artist" key of each element in the dataset
   async function getArtists() {
