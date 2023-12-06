@@ -40,7 +40,8 @@ var m = [60, 0, 10, 0],
     legend,
     render_speed = 50,
     brush_count = 0,
-    excluded_playlist_genres = [];
+    excluded_playlist_genres = [],
+    excludeColumns = ["key", "mode"]; // list of columns to exclude
 
 var genre_colors = {
   "pop": [185,56,23],
@@ -117,10 +118,11 @@ d3.csv("../data/spotify_songs.csv", function(raw_data) {
   });
 
   // Extract the list of numerical dimensions and create a scale for each.
+
   xscale.domain(dimensions = d3.keys(data[0]).filter(function(k) {
-    return (_.isNumber(data[0][k])) && (yscale[k] = d3.scale.linear()
-      .domain(d3.extent(data, function(d) { return +d[k]; }))
-      .range([h, 0]));
+    return (_.isNumber(data[0][k])) && (excludeColumns.indexOf(k) === -1) && (yscale[k] = d3.scale.linear()
+        .domain(d3.extent(data, function(d) { return +d[k]; }))
+        .range([h, 0]));
   }).sort());
 
   // Add a playlist_genre element for each dimension.
@@ -308,7 +310,7 @@ function data_table(sample) {
 
   table
     .append("span")
-      .text(function(d) { return d.track_name; })
+      .text(function(d) { return d.track_artist + " - " + d.track_name; })
 }
 
 // Adjusts rendering speed 
