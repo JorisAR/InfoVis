@@ -35,11 +35,21 @@ function getPlaylistFrequency(callback) {
     getDataset(function(data) {
         var playlistFrequencyMap = data.reduce(function(map, item) {
             var genre = item.playlist_genre;
-            var genreData = map[genre] || { count: 0, danceability: 0, liveness: 0, loudness: 0 };
+            var genreData = map[genre] || { count: 0, danceability: 0, 
+              energy: 0,  speechiness: 0, acousticness : 0, instrumentalness: 0, liveness: 0, 
+              valence : 0, loudness: 0, tempo : 0, duration_ms : 0, track_popularity : 0 };
             genreData.count++;
             genreData.danceability += item.danceability;
+            genreData.energy += item.energy;
+            genreData.speechiness += item.speechiness;
+            genreData.acousticness += item.acousticness;
+            genreData.instrumentalness += item.instrumentalness;
             genreData.liveness += item.liveness;
+            genreData.valence += item.valence;
             genreData.loudness += item.loudness;
+            genreData.tempo += item.tempo;
+            genreData.duration_ms += item.duration_ms;
+            genreData.track_popularity += item.track_popularity;
             map[genre] = genreData;
             return map;
         }, {});
@@ -47,42 +57,26 @@ function getPlaylistFrequency(callback) {
         for (var genre in playlistFrequencyMap) {
             var data = playlistFrequencyMap[genre];
             data.danceability /= data.count;
+            data.energy /= data.count;
+            data.speechiness /= data.count;
+            data.acousticness /= data.count;
+            data.instrumentalness /= data.count;
             data.liveness /= data.count;
+            data.valence /= data.count;
             data.loudness /= data.count;
+            data.tempo /= data.count;
+            data.duration_ms /= data.count;
+            data.track_popularity /= data.count;
         }
 
         var genreArray = Object.keys(playlistFrequencyMap).map(function(key) {
             return { key: key, value: playlistFrequencyMap[key] };
         });
+        console.log(genreArray)
 
         callback(genreArray);
     });
 }
-
-function normalizeData(data, attributes) {
-    let minMaxValues = {};
-
-    // Initialize min and max values
-    attributes.forEach(attr => {
-        minMaxValues[attr] = {min: Infinity, max: -Infinity};
-    });
-
-    // Find the min and max values for each attribute
-    data.forEach(item => {
-        attributes.forEach(attr => {
-            minMaxValues[attr].min = Math.min(minMaxValues[attr].min, item[attr]);
-            minMaxValues[attr].max = Math.max(minMaxValues[attr].max, item[attr]);
-        });
-    });
-
-    // Normalize the data
-    data.forEach(item => {
-        attributes.forEach(attr => {
-            item[attr] = (item[attr] - minMaxValues[attr].min) / (minMaxValues[attr].max - minMaxValues[attr].min);
-        });
-    });
-}
-
 
 
 function convertToChartData(genreArray) {
@@ -91,8 +85,16 @@ function convertToChartData(genreArray) {
             className: genre.key,
             axes: [
                 { axis: "danceability", value: genre.value.danceability },
+                { axis: "energy", value: genre.value.energy },
+                { axis: "speechiness", value: genre.value.speechiness },
+                { axis: "acousticness", value: genre.value.acousticness},
+                { axis: "instrumentalness", value: genre.value.instrumentalness},
                 { axis: "liveness", value: genre.value.liveness },
-                { axis: "loudness", value: genre.value.loudness }
+                { axis: "valence", value: genre.value.valence },
+                { axis: "loudness", value: genre.value.loudness },
+                { axis: "tempo", value: genre.value.tempo },
+                { axis: "duration_ms", value: genre.value.duration_ms },
+                { axis: "track_popularity", value: genre.value.track_popularity },
             ]
         };
     });
@@ -179,12 +181,30 @@ var RadarChart = {
             return datum;
           });
   
-          var maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) {
-            return d3.max(d.axes, function(o){ return o.value; });
-          }));
-          maxValue -= cfg.minValue;
-  
-          var allAxis = data[0].axes.map(function(i, j){ return {name: i.axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
+        //   var maxValue = Math.max(cfg.maxValue, d3.max(data, function(d) {
+        //     return d3.max(d.axes, function(o) { return o.value; });
+        // }));
+        // maxValue -= cfg.minValue; 
+        var axisMaxValues = data[0].axes.map(function(axis, index) {
+          return d3.max(data, function(d) {
+              return d.axes[index].value;
+          });
+      });
+      var axisMinValues = data[0].axes.map(function(axis, index) {
+        return d3.min(data, function(d) {
+            return d.axes[index].value;
+        });
+    });
+      var allAxis = data[0].axes.map(function(i, j) {
+        return {
+            name: i.axis,
+            xOffset: i.xOffset || 0,
+            yOffset: i.yOffset || 0,
+            maxValue: axisMaxValues[j],
+            minValue: axisMinValues[j]
+        };
+    });
+          //var allAxis = data[0].axes.map(function(i, j){ return {name: i.axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
           var total = allAxis.length;
           var radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
           var radius2 = Math.min(cfg.w / 2, cfg.h / 2);
@@ -311,12 +331,27 @@ var RadarChart = {
           }
   
           // content
-          data.forEach(function(d){
+          data.forEach(function(d) {
             d.axes.forEach(function(axis, i) {
-              axis.x = (cfg.w/2-radius2)+getHorizontalPosition(i, radius2, (parseFloat(Math.max(axis.value - cfg.minValue, 0))/maxValue)*cfg.factor);
-              axis.y = (cfg.h/2-radius2)+getVerticalPosition(i, radius2, (parseFloat(Math.max(axis.value - cfg.minValue, 0))/maxValue)*cfg.factor);
-            });
-          });
+                // Use individual axis max value for scaling
+                var axisMaxValue = allAxis[i].maxValue - cfg.minValue;
+                var axisMinValue = allAxis[i].minValue - cfg.minValue;
+                if (axisMaxValue > 0){
+                  var AxisRange = axisMaxValue - axisMinValue;
+                  var normalizedValue = (axis.value - axisMinValue) / AxisRange;
+                  axis.x = (cfg.w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
+                  axis.y = (cfg.h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue* cfg.factor);
+          }
+          else{
+            var AxisRange = axisMaxValue - axisMinValue;
+            var normalizedValue = -(axis.value - axisMaxValue) / AxisRange;
+            axis.x = (cfg.w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
+            axis.y = (cfg.h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
+          
+          }
+        
+        });
+        });
           var polygon = container.selectAll(".area").data(data, cfg.axisJoin);
   
           var polygonType = 'polygon';
