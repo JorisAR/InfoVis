@@ -15,10 +15,18 @@ function conversor(d) {
   return d;
 }
 
-async function getDataset() {
-  const data = await d3.csv("../data/spotify_songs.csv", conversor);
-  return data;
-}
+export async function getDataset() {
+    try {
+      const data = await d3.csv("data/spotify_songs.csv");
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
+  function onlyUnique(value, index, array) {
+    return array.indexOf(value) === index;
+  }
 
 async function getRandomDataset(n) {
   const data = await d3.csv("../data/spotify_songs.csv", conversor);
