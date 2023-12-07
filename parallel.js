@@ -17,7 +17,7 @@ function conversor(d) {
 
 
 async function getDataset() {
-  const data = await d3.csv("../data/spotify_songs.csv", conversor);
+  const data = await d3.csv("data/spotify_songs.csv", conversor);
   return data;
 }
 
@@ -106,7 +106,7 @@ var svg = d3.select("svg")
     .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
 // Load the data and visualization
-d3.csv("../data/spotify_songs.csv", function(raw_data) {
+d3.csv("data/spotify_songs.csv", function(raw_data) {
   // Convert quantitative scales to floats
   data = raw_data.map(function(d) {
     for (var k in d) {
@@ -526,7 +526,7 @@ function paths(selected, ctx, count) {
 
   shuffled_data = _.shuffle(selected);
 
-  data_table(shuffled_data.slice(0,25));
+  data_table(shuffled_data.slice(0,5));
 
   ctx.clearRect(0,0,w+1,h+1);
 
@@ -645,7 +645,7 @@ function export_csv() {
 // scale to window size
 window.onresize = function() {
   width = document.body.clientWidth,
-  height = d3.max([document.body.clientHeight-500, 220]);
+  height = d3.max([document.body.clientHeight-400, 220]);
 
   w = width - m[1] - m[3],
   h = height - m[0] - m[2];
