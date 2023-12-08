@@ -653,8 +653,8 @@ function export_csv() {
 
 // scale to window size
 window.onresize = function() {
-  width = chartDiv.clientWidth;
-  height = document.body.clientHeight/2;
+  width = document.body.clientWidth -200;
+  height = d3.max([document.body.clientHeight-540, 240]);
   console.log(width);
 
   w = width - m[1] - m[3],
