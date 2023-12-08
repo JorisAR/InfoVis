@@ -3,22 +3,12 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Song Explorer</title>
-    <link rel="stylesheet" href="style.css">  
+    <link rel="stylesheet" type="text/css" href="style.css">  
     <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
-    <script type="text/javascript" src="radar.js"></script>
+    
   </head>
   <body>
-    <script>
-      getPlaylistFrequency(function(genreArray) {
-        genreArray = convertToChartData(genreArray);
-        showRadar(genreArray);
-    });
-    function showRadar(data){
-    var chart = RadarChart.chart();
-    RadarChart.draw("#chart-container", data);
-    }
-    </script>
-
+    
     <div id="header">
       <h1>Song Explorer</h1>
       <button title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
@@ -37,46 +27,49 @@
       </div>
       <div style="clear:both;"></div>
     </div>
-    <div id="container_main">
-      
-
-      <div id="chart">
-        <canvas id="background"></canvas>
-        <canvas id="foreground"></canvas>
-        <canvas id="highlight"></canvas>
-        <svg></svg>
-      </div>
-
-      <div id="container_sub">
-        
-
-        <div id="container">
-          <div class="third">
-            <small>
-              <!--Last rendered <strong id="render-speed"></strong> lines-->
-            </small>
-            <h3>Genre Groups</h3>
-            <p id="legend">
-            </p>
-          </div>
-
-          <div class="third">
-            <h3>Sample of 5 entries <input type="text" id="search" placeholder="Search Tracks..."></input></h3>
-            <p id="genre-list">
-            </p>
-          </div>
-          
-          
+    <div id="grid-container">
+        <div class="third" id="item1">
+          <small>
+            <!--Last rendered <strong id="render-speed"></strong> lines-->
+          </small>
+          <h3>Genre Groups</h3>
+          <p id="legend">
+          </p>
         </div>
-          
-        <div id="chart-container"></div>
-      </div>
+
+        <div class="third" id="item2">
+          <h3>Sample of 5 entries <input type="text" id="search" placeholder="Search Tracks..."></input></h3>
+          <p id="genre-list">
+          </p>
+        </div>
+
+        <div id="chart">
+          <canvas id="background"></canvas>
+          <canvas id="foreground"></canvas>
+          <canvas id="highlight"></canvas>
+          <svg></svg>
+        </div>
+      
+        <div id="radar-container" ></div>
+        <div id="item5" ></div>
     </div>
+  </div>
     <script type="text/javascript">
     //RadarChart.defaultConfig.levelTick = true;
     </script>
-      <script src="https://underscorejs.org/underscore.js"></script>
-      <script src="parallel.js"></script>
-  </body>
 
+  </body>
+  <script src="https://underscorejs.org/underscore.js"></script>
+  <script src="parallel.js"></script>
+  <script type="text/javascript" src="radar.js"></script>
+  <script>
+    getPlaylistFrequency(function(genreArray) {
+      genreArray = convertToChartData(genreArray);
+      showRadar(genreArray), actives();
+  });
+  function showRadar(data){
+  var chart = RadarChart.chart();
+  RadarChart.draw("#radar-container", data);
+  }
+  </script>
 </html>

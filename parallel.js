@@ -21,8 +21,16 @@ async function getDataset() {
   return data;
 }
 
-var width = document.body.clientWidth,
+var chartDiv = document.getElementById('chart');
+
+// var width = chartDiv.clientWidth,
+//     height = document.body.clientHeight/2;
+
+  var width = document.body.clientWidth -200,
     height = d3.max([document.body.clientHeight-540, 240]);
+
+    
+    
 
 var m = [60, 0, 10, 0],
     w = width - m[1] - m[3],
@@ -546,6 +554,7 @@ function paths(selected, ctx, count) {
 // transition ticks for reordering, rescaling and inverting
 function update_ticks(d, extent) {
   // update brushes
+  console.log(yscale[d]);
   if (d) {
     var brush_el = d3.selectAll(".brush")
         .filter(function(key) { return key == d; });
@@ -571,7 +580,7 @@ function update_ticks(d, extent) {
     .each(function(d,i) {
       // hide lines for better performance
       d3.select(this).selectAll('line').style("display", "none");
-
+      console.log(yscale[d]);
       // transition axis numbers
       d3.select(this)
         .transition()
@@ -644,8 +653,9 @@ function export_csv() {
 
 // scale to window size
 window.onresize = function() {
-  width = document.body.clientWidth,
-  height = d3.max([document.body.clientHeight-400, 220]);
+  width = chartDiv.clientWidth;
+  height = document.body.clientHeight/2;
+  console.log(width);
 
   w = width - m[1] - m[3],
   h = height - m[0] - m[2];
@@ -675,7 +685,7 @@ window.onresize = function() {
   d3.selectAll(".brush")
     .each(function(d) { d3.select(this).call(yscale[d].brush = d3.svg.brush().y(yscale[d]).on("brush", brush)); })
   brush_count++;
-
+ 
   // update axis placement
   axis = axis.ticks(1+height/50),
   d3.selectAll(".axis")

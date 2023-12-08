@@ -18,7 +18,7 @@ function conversor(d) {
 }
 
 function getDataset(callback) {
-    d3.csv("data/spotify_songs.csv", conversor, function(error, data) {
+    d3.csv("../../data/spotify_songs.csv", conversor, function(error, data) {
         if (error) {
             console.error('Error loading data: ', error);
             return;
@@ -31,8 +31,8 @@ function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
 }
 
-function getPlaylistFrequency(callback) {
-    getDataset(function(data) {
+function getPlaylistFrequency(callback,data) {
+  console.log(data);
         var playlistFrequencyMap = data.reduce(function(map, item) {
             var genre = item.playlist_genre;
             var genreData = map[genre] || { count: 0, danceability: 0, 
@@ -75,7 +75,7 @@ function getPlaylistFrequency(callback) {
         console.log(genreArray)
 
         callback(genreArray);
-    });
+    ;
 }
 
 
@@ -84,29 +84,27 @@ function convertToChartData(genreArray) {
         return {
             className: genre.key,
             axes: [
-                { radar_axis: "danceability", value: genre.value.danceability },
-                { radar_axis: "energy", value: genre.value.energy },
-                { radar_axis: "speechiness", value: genre.value.speechiness },
-                { radar_axis: "acousticness", value: genre.value.acousticness},
-                { radar_axis: "instrumentalness", value: genre.value.instrumentalness},
-                { radar_axis: "liveness", value: genre.value.liveness },
-                { radar_axis: "valence", value: genre.value.valence },
-                { radar_axis: "loudness", value: genre.value.loudness },
-                { radar_axis: "tempo", value: genre.value.tempo },
-                { radar_axis: "duration_ms", value: genre.value.duration_ms },
-                { radar_axis: "track_popularity", value: genre.value.track_popularity },
+                { axis: "danceability", value: genre.value.danceability },
+                { axis: "energy", value: genre.value.energy },
+                { axis: "speechiness", value: genre.value.speechiness },
+                { axis: "acousticness", value: genre.value.acousticness},
+                { axis: "instrumentalness", value: genre.value.instrumentalness},
+                { axis: "liveness", value: genre.value.liveness },
+                { axis: "valence", value: genre.value.valence },
+                { axis: "loudness", value: genre.value.loudness },
+                { axis: "tempo", value: genre.value.tempo },
+                { axis: "duration_ms", value: genre.value.duration_ms },
+                { axis: "track_popularity", value: genre.value.track_popularity },
             ]
         };
     });
 }
 
-var chartDiv = document.getElementById('radar-container');
-
 var RadarChart = {
     defaultConfig: {
       containerClass: 'radar-chart',
-      radar_w: chartDiv.clientWidth,
-      radar_h: chartDiv.clientWidth,
+      w: 600,
+      h: 600,
       factor: 0.95,
       factorLegend: 1,
       levels: 3,
@@ -116,15 +114,15 @@ var RadarChart = {
       minValue: 0,
       radians: 2 * Math.PI,
       color: d3.scale.category10(),
-      radar_axisLine: true,
-      radar_axisText: true,
+      axisLine: true,
+      axisText: true,
       circles: true,
       radius: 5,
       open: false,
       backgroundTooltipColor: "#555",
       backgroundTooltipOpacity: "0.7",
       tooltipColor: "white",
-      radar_axisJoin: function(d, i) {
+      axisJoin: function(d, i) {
         return d.className || i;
       },
       tooltipFormatValue: function(d) {
@@ -187,29 +185,29 @@ var RadarChart = {
         //     return d3.max(d.axes, function(o) { return o.value; });
         // }));
         // maxValue -= cfg.minValue; 
-        var radar_axisMaxValues = data[0].axes.map(function(radar_axis, index) {
+        var axisMaxValues = data[0].axes.map(function(axis, index) {
           return d3.max(data, function(d) {
               return d.axes[index].value;
           });
       });
-      var radar_axisMinValues = data[0].axes.map(function(radar_axis, index) {
+      var axisMinValues = data[0].axes.map(function(axis, index) {
         return d3.min(data, function(d) {
             return d.axes[index].value;
         });
     });
-      var allradar_axis = data[0].axes.map(function(i, j) {
+      var allAxis = data[0].axes.map(function(i, j) {
         return {
-            name: i.radar_axis,
+            name: i.axis,
             xOffset: i.xOffset || 0,
             yOffset: i.yOffset || 0,
-            maxValue: radar_axisMaxValues[j],
-            minValue: radar_axisMinValues[j]
+            maxValue: axisMaxValues[j],
+            minValue: axisMinValues[j]
         };
     });
-          //var allradar_axis = data[0].axes.map(function(i, j){ return {name: i.radar_axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
-          var total = allradar_axis.length;
-          var radius = cfg.factor * Math.min(cfg.radar_w / 2, cfg.radar_h / 2);
-          var radius2 = Math.min(cfg.radar_w / 2, cfg.radar_h / 2);
+          //var allAxis = data[0].axes.map(function(i, j){ return {name: i.axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
+          var total = allAxis.length;
+          var radius = cfg.factor * Math.min(cfg.w / 2, cfg.h / 2);
+          var radius2 = Math.min(cfg.w / 2, cfg.h / 2);
   
           container.classed(cfg.containerClass, 1);
   
@@ -224,7 +222,7 @@ var RadarChart = {
             return getPosition(i, range, factor, Math.cos);
           }
   
-          // levels && radar_axises
+          // levels && axises
           var levelFactors = d3.range(0, cfg.levels).map(function(level) {
             return radius * ((level + 1) / cfg.levels);
           });
@@ -277,7 +275,7 @@ var RadarChart = {
               }
             })
             .attr('transform', function(levelFactor) {
-              return 'translate(' + (cfg.radar_w/2-levelFactor) + ', ' + (cfg.radar_h/2-levelFactor) + ')';
+              return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
             });
           }
           else{
@@ -288,34 +286,34 @@ var RadarChart = {
             .attr('x2', function(levelFactor, i){ return getHorizontalPosition(i+1, levelFactor); })
             .attr('y2', function(levelFactor, i){ return getVerticalPosition(i+1, levelFactor); })
             .attr('transform', function(levelFactor) {
-              return 'translate(' + (cfg.radar_w/2-levelFactor) + ', ' + (cfg.radar_h/2-levelFactor) + ')';
+              return 'translate(' + (cfg.w/2-levelFactor) + ', ' + (cfg.h/2-levelFactor) + ')';
             });
           }
-          if(cfg.radar_axisLine || cfg.radar_axisText) {
-            var radar_axis = container.selectAll('.radar_axis').data(allradar_axis);
+          if(cfg.axisLine || cfg.axisText) {
+            var axis = container.selectAll('.axis').data(allAxis);
   
-            var newradar_axis = radar_axis.enter().append('g');
-            if(cfg.radar_axisLine) {
-              newradar_axis.append('line');
+            var newAxis = axis.enter().append('g');
+            if(cfg.axisLine) {
+              newAxis.append('line');
             }
-            if(cfg.radar_axisText) {
-              newradar_axis.append('text');
-            }
-  
-            radar_axis.exit().remove();
-  
-            radar_axis.attr('class', 'radar_axis');
-  
-            if(cfg.radar_axisLine) {
-              radar_axis.select('line')
-              .attr('x1', cfg.radar_w/2)
-              .attr('y1', cfg.radar_h/2)
-              .attr('x2', function(d, i) { return (cfg.radar_w/2-radius2)+getHorizontalPosition(i, radius2, cfg.factor); })
-              .attr('y2', function(d, i) { return (cfg.radar_h/2-radius2)+getVerticalPosition(i, radius2, cfg.factor); });
+            if(cfg.axisText) {
+              newAxis.append('text');
             }
   
-            if(cfg.radar_axisText) {
-              radar_axis.select('text')
+            axis.exit().remove();
+  
+            axis.attr('class', 'axis');
+  
+            if(cfg.axisLine) {
+              axis.select('line')
+              .attr('x1', cfg.w/2)
+              .attr('y1', cfg.h/2)
+              .attr('x2', function(d, i) { return (cfg.w/2-radius2)+getHorizontalPosition(i, radius2, cfg.factor); })
+              .attr('y2', function(d, i) { return (cfg.h/2-radius2)+getVerticalPosition(i, radius2, cfg.factor); });
+            }
+  
+            if(cfg.axisText) {
+              axis.select('text')
               .attr('class', function(d, i){
                 var p = getHorizontalPosition(i, 0.5);
   
@@ -327,34 +325,34 @@ var RadarChart = {
                 return ((p < 0.1) ? '1em' : ((p > 0.9) ? '0' : '0.5em'));
               })
               .text(function(d) { return d.name; })
-              .attr('x', function(d, i){ return d.xOffset+ (cfg.radar_w/2-radius2)+getHorizontalPosition(i, radius2, cfg.factorLegend); })
-              .attr('y', function(d, i){ return d.yOffset+ (cfg.radar_h/2-radius2)+getVerticalPosition(i, radius2, cfg.factorLegend); });
+              .attr('x', function(d, i){ return d.xOffset+ (cfg.w/2-radius2)+getHorizontalPosition(i, radius2, cfg.factorLegend); })
+              .attr('y', function(d, i){ return d.yOffset+ (cfg.h/2-radius2)+getVerticalPosition(i, radius2, cfg.factorLegend); });
             }
           }
   
           // content
           data.forEach(function(d) {
-            d.axes.forEach(function(radar_axis, i) {
-                // Use individual radar_axis max value for scaling
-                var radar_axisMaxValue = allradar_axis[i].maxValue - cfg.minValue;
-                var radar_axisMinValue = allradar_axis[i].minValue - cfg.minValue;
-                if (radar_axisMaxValue > 0){
-                  var radar_axisRange = radar_axisMaxValue - radar_axisMinValue;
-                  var normalizedValue = (radar_axis.value - radar_axisMinValue) / radar_axisRange;
-                  radar_axis.x = (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
-                  radar_axis.y = (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue* cfg.factor);
+            d.axes.forEach(function(axis, i) {
+                // Use individual axis max value for scaling
+                var axisMaxValue = allAxis[i].maxValue - cfg.minValue;
+                var axisMinValue = allAxis[i].minValue - cfg.minValue;
+                if (axisMaxValue > 0){
+                  var AxisRange = axisMaxValue - axisMinValue;
+                  var normalizedValue = (axis.value - axisMinValue) / AxisRange;
+                  axis.x = (cfg.w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
+                  axis.y = (cfg.h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue* cfg.factor);
           }
           else{
-            var radar_axisRange = radar_axisMaxValue - radar_axisMinValue;
-            var normalizedValue = -(radar_axis.value - radar_axisMaxValue) / radar_axisRange;
-            radar_axis.x = (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
-            radar_axis.y = (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
+            var AxisRange = axisMaxValue - axisMinValue;
+            var normalizedValue = -(axis.value - axisMaxValue) / AxisRange;
+            axis.x = (cfg.w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
+            axis.y = (cfg.h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
           
           }
         
         });
         });
-          var polygon = container.selectAll(".area").data(data, cfg.radar_axisJoin);
+          var polygon = container.selectAll(".area").data(data, cfg.axisJoin);
   
           var polygonType = 'polygon';
           if (cfg.open) {
@@ -406,7 +404,7 @@ var RadarChart = {
   
           if(cfg.circles && cfg.radius) {
   
-            var circleGroups = container.selectAll('g.circle-group').data(data, cfg.radar_axisJoin);
+            var circleGroups = container.selectAll('g.circle-group').data(data, cfg.axisJoin);
   
             circleGroups.enter().append('g').classed({'circle-group': 1, 'd3-enter': 1});
             circleGroups.exit()
@@ -505,12 +503,12 @@ var RadarChart = {
     draw: function(id, d, options) {
       var chart = RadarChart.chart().config(options);
       var cfg = chart.config();
-      
+  
       d3.select(id).select('svg').remove();
       d3.select(id)
       .append("svg")
-      .attr("width", cfg.radar_w)
-      .attr("height", cfg.radar_h)
+      .attr("width", cfg.w)
+      .attr("height", cfg.h)
       .datum(d)
       .call(chart);
     }

@@ -21,8 +21,12 @@ async function getDataset() {
   return data;
 }
 
-var width = document.body.clientWidth,
-    height = d3.max([document.body.clientHeight-540, 240]);
+// var width = document.body.clientWidth,
+//     height = d3.max([document.body.clientHeight-540, 240]);
+var chartDiv = document.getElementById('chart');
+
+var width = chartDiv.clientWidth,
+    height =  height = d3.max([document.body.clientHeight-340, 340]);
 
 var m = [60, 0, 10, 0],
     w = width - m[1] - m[3],
@@ -526,7 +530,7 @@ function paths(selected, ctx, count) {
 
   shuffled_data = _.shuffle(selected);
 
-  data_table(shuffled_data.slice(0,25));
+  data_table(shuffled_data.slice(0,5));
 
   ctx.clearRect(0,0,w+1,h+1);
 
@@ -644,8 +648,8 @@ function export_csv() {
 
 // scale to window size
 window.onresize = function() {
-  width = document.body.clientWidth,
-  height = d3.max([document.body.clientHeight-500, 220]);
+  width = chartDiv.clientWidth
+  height = d3.max([document.body.clientHeight-340, 340]);
 
   w = width - m[1] - m[3],
   h = height - m[0] - m[2];
