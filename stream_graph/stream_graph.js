@@ -8,15 +8,18 @@ var genre_colors = {
   };
 
   function hsv_to_color(d) {
-    var a = 1;
-    var c = genre_colors[d];
+    const a = 1;
+    console.log(d)
+    const c = genre_colors[d];
     return ["hsla(",c[0],",",c[1],"%,",c[2],"%,",a,")"].join("");
   }
 
+var streamDiv = document.getElementById('my_dataviz');
+
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 30, bottom: 0, left: 10},
-    width = 980 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+    streamWidth = streamDiv.clientWidth,
+    streamHeight =  d3.max([document.body.clientHeight-540, 240]);;
 
 // append the svg object to the body of the page
 var svg = d3.select("#my_dataviz")
@@ -26,6 +29,17 @@ var svg = d3.select("#my_dataviz")
     .append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
+
+var Tooltip = d3.select("body")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "2px")
+    .style("border-radius", "5px")
+    .style("padding", "5px");
 
 d3.csv("../data/spotify_songs.csv", function(d) {
     // Convert quantitative scales to floats
@@ -51,22 +65,23 @@ d3.csv("../data/spotify_songs.csv", function(d) {
     console.log("nestedData")
     console.log(nestedData)
 
-    // Transform the nested data into a suitable format for d3.layout.stack()
+// Transform the nested data into a suitable format for d3.layout.stack()
     var dataPerYear = nestedData.reduce(function(acc, d) {
         d.values.forEach(function(v) {
-            var existing = acc.find(function(e) { return e.x === v.key; });
+            var existing = acc.find(function(e) { return e.x === +v.key; });
             if (existing) {
-                existing[d.key] = v.value;
+                existing[d.key] = v.values;
             } else {
-                var newObj = {x: v.key};
+                var newObj = {x: +v.key};
                 Object.keys(genre_colors).forEach(function(genre) {
-                    newObj[genre] = genre === d.key ? v.value : 0;
+                    newObj[genre] = genre === d.key ? v.values : 0;
                 });
                 acc.push(newObj);
             }
         });
         return acc;
     }, []);
+
 
     dataPerYear.sort(function(a, b) {
         return a.x - b.x;
@@ -89,8 +104,8 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         });
     });
 
-    // console.log("dataPerYear")
-    // console.log(dataPerYear)
+    console.log("dataPerYear")
+    console.log(dataPerYear)
 
     // Calculate the maximum total track_popularity across all genres for any given year
     var maxPopularity = d3.max(dataPerYear, function(d) {
@@ -102,71 +117,82 @@ d3.csv("../data/spotify_songs.csv", function(d) {
     });
     console.log("max popularity: " + maxPopularity)
     
-    var stack = d3.stack()
-        //.offset(d3.stackOffsetNone)//d3.stackOffsetSilhouette
-        .offset(d3.stackOffsetNone)
-        .keys(Object.keys(genre_colors))
-        // .value(function(d, key) { return d[key] || 0; });
-    
-    var stackedData = stack(dataPerYear);
-    console.log("stackedData")
-    console.log(stackedData)
+// In D3 v3, we use d3.layout.stack()
+    var stack = d3.layout.stack()
+        .offset("zero");
 
-    // Define the x, y, and color scales
-    var x = d3.scaleLinear()
+// Here's how you can prepare your data for d3.layout.stack()
+    const keys = Object.keys(genre_colors);
+    var layers = keys.map(function(key, i) {
+        var layer = dataPerYear.map(function(d) {
+            return {x: d.x, y: d[key] || 0};
+        });
+        layer.key = key;  // Add the key to the layer
+        return layer;
+    });
+
+    var stackedData = stack(layers);
+    console.log("stackedData");
+    console.log(stackedData);
+
+
+// Define the x, y, and color scales
+    var x = d3.scale.linear()
         .domain(d3.extent(data, function(d) { return new Date(d.track_album_release_date).getFullYear(); }))
         .range([0, width]);
-    var y = d3.scaleLinear()
+    var y = d3.scale.linear()
         .domain([0, maxPopularity])
         .range([height * .78, height * .02]);
-    
+
     var color = function(genre) {
         return hsv_to_color(genre);
     }
 
+    var mouseover = function(d) {
+        Tooltip.style("opacity", 1)
+        d3.selectAll(".myArea").style("opacity", .2)
+        d3.select(this)
+          .style("stroke", "black")
+          .style("opacity", 1)
+      }
+      var mousemove = function(d,i) {
+        grp = keys[i]
+        Tooltip.text(grp)
+      }
+      var mouseleave = function(d) {
+        Tooltip.style("opacity", 0)
+        d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
+    }
+
     svg.append("g")
         .attr("transform", "translate(0," + height*0.8 + ")")
-        .call(d3.axisBottom(x).tickSize(-height*.8).ticks(5))
+        .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-height*.8).ticks(5))
         .select(".domain").remove()
-    // Customization
+// Customization
     svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
-    // Add X axis label:
+// Add X axis label:
     svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
         .attr("y", height * .9)
-        .text("Time (year)");    
+        .text("Time (year)");
 
-    const area = d3.area()
-        .x((d, i) => x(d.data.x)) //console.log(x(d.data.x)); return i / 61 * width;
-        .y0(d => y(d[0]))
-        .y1(d => y(d[1]));
+    const area = d3.svg.area()
+        .x(function(d) { return x(d.x); })
+        .y0(function(d) { return y(d.y0); })
+        .y1(function(d) { return y(d.y0 + d.y); });
 
     svg
         .selectAll("mylayers")
         .data(stackedData)
         .enter()
         .append("path")
-          .attr("class", "myArea")
-          .style("fill", function(d) { return color(d.key); })
-          .attr("d", area)
-        //   .on("mouseover", mouseover)
-        //   .on("mousemove", mousemove)
-        //   .on("mouseleave", mouseleave)
+        .attr("class", "myArea")
+        .style("fill", function(d) { return color(d.key); })
+        .attr("d", area)
+          .on("mouseover", mouseover)
+          .on("mousemove", mousemove)
+          .on("mouseleave", mouseleave);
 });
 
-    // var mouseover = function(d) {
-    //     Tooltip.style("opacity", 1)
-    //     d3.selectAll(".myArea").style("opacity", .2)
-    //     d3.select(this)
-    //       .style("stroke", "black")
-    //       .style("opacity", 1)
-    //   }
-    //   var mousemove = function(d,i) {
-    //     grp = keys[i]
-    //     Tooltip.text(grp)
-    //   }
-    //   var mouseleave = function(d) {
-    //     Tooltip.style("opacity", 0)
-    //     d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
-    // }
+

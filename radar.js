@@ -515,4 +515,3 @@ var RadarChart = {
       .call(chart);
     }
   };
-  
