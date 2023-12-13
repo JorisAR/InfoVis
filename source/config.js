@@ -1,4 +1,7 @@
 const debug = false;
+var data;
+var activeData;
+
 
 const genre_colors = {
     "pop": [330, 100, 45],
@@ -17,17 +20,10 @@ const color = function(genre, alpha=1) {
     return hsv_to_color(genre, alpha);
 };
 
-const genre_index = [
-    "pop",
-    "rap",
-    "rock",
-    "latin",
-    "r&b",
-    "edm"
-];
 
-var data;
-var activeData;
+/**
+ * Load data for the first time.
+ */
 d3.csv("../data/spotify_songs.csv", function(d) {
     // Convert quantitative scales to floats
     for (var k in d) {
@@ -49,7 +45,8 @@ d3.csv("../data/spotify_songs.csv", function(d) {
 document.addEventListener('dataUpdated', function (e) {
     // The updated data is in e.detail
     activeData = e.detail;
-    console.log('Updated data:', activeData);
+    if(debug)
+        console.log('Updated data:', activeData);
     drawStreamGraph(activeData);
     drawRadarPlot(activeData)
 }, false);

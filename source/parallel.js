@@ -1,19 +1,14 @@
-var chartDiv = document.getElementById('chart');
-
-// var width = chartDiv.clientWidth,
-//     height = document.body.clientHeight/2;
-
-  var width = document.body.clientWidth -200,
-    height = d3.max([document.body.clientHeight-540, 240]);
+let parallelWidth = document.body.clientWidth -200;
+let parallelHeight = d3.max([document.body.clientHeight-540, 240]);
 
 var m = [60, 0, 10, 0],
-    w = width - m[1] - m[3],
-    h = height - m[0] - m[2],
+    w = parallelWidth - m[1] - m[3],
+    h = parallelHeight - m[0] - m[2],
     xscale = d3.scale.ordinal().rangePoints([0, w], 1),
     yscale = {},
     dragging = {},
     line = d3.svg.line(),
-    axis = d3.svg.axis().orient("left").ticks(1+height/50),
+    axis = d3.svg.axis().orient("left").ticks(1+parallelHeight/50),
     data,
     foreground,
     background,
@@ -68,6 +63,8 @@ drawParallelCoordinates = function(data) {
         .domain(d3.extent(data, function(d) { return +d[k]; }))
         .range([h, 0]));
   }).sort());
+
+
 
   // Add a playlist_genre element for each dimension.
   var g = parallel_svg.selectAll(".dimension")
@@ -204,13 +201,13 @@ function create_legend(genre_colors,brush) {
           d3.select(this).attr("title", "Show playlist_genre")
           excluded_playlist_genres.push(d);
           brush();
-          updateData();c
+          updateData();
         }
       });
 
   legend
     .append("span")
-    .style("background", function(d,i) { return color(d,0.85)})
+    .style("background", function(d,i) { return color(d,1)})
     .attr("class", "color-bar");
 
   legend
@@ -338,7 +335,7 @@ function path(d, ctx, color) {
 function path(d, ctx, color) {
   if (color) ctx.strokeStyle = color;
   ctx.beginPath();
-  var x0 = xscale(0)-15,
+  var x0 = xscale(0),
       y0 = yscale[dimensions[0]](d[dimensions[0]]);   // left edge
   ctx.moveTo(x0,y0);
   dimensions.map(function(p,i) {
@@ -434,6 +431,7 @@ function brush() {
 
   // include empty playlist_genres
   _(genre_colors).each(function(v,k) { tallies[k] = tallies[k] || []; });
+  var maxLength = Math.max(...Object.keys(genre_colors).map(key => tallies[key].length));
 
   legend
     .style("text-decoration", function(d) { return _.contains(excluded_playlist_genres,d) ? "line-through" : null; })
@@ -445,7 +443,7 @@ function brush() {
 
   legend.selectAll(".color-bar")
     .style("width", function(d) {
-      return Math.ceil(600*tallies[d].length/data.length) + "px"
+      return Math.ceil(200*tallies[d].length / maxLength) + "px";
     });
 
   legend.selectAll(".tally")
@@ -596,11 +594,11 @@ function export_csv() {
 
 // scale to window size
 window.onresize = function() {
-  width = document.body.clientWidth -200;
-  height = d3.max([document.body.clientHeight-540, 240]);
+    parallelWidth = document.body.clientWidth -200;
+    parallelHeight = d3.max([document.body.clientHeight-540, 240]);
 
-  w = width - m[1] - m[3],
-  h = height - m[0] - m[2];
+  w = parallelWidth - m[1] - m[3],
+  h = parallelHeight - m[0] - m[2];
 
   d3.select("#chart")
       .style("height", (h + m[0] + m[2]) + "px")
@@ -629,7 +627,7 @@ window.onresize = function() {
   brush_count++;
  
   // update axis placement
-  axis = axis.ticks(1+height/50),
+  axis = axis.ticks(1+parallelHeight/50),
   d3.selectAll(".axis")
     .each(function(d) { d3.select(this).call(axis.scale(yscale[d])); });
 

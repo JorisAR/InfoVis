@@ -1,69 +1,37 @@
 function getPlaylistFrequency(data) {
     var playlistFrequencyMap = data.reduce(function (map, item) {
         var genre = item.playlist_genre;
-        var genreData = map[genre] || {
-            count: 0, danceability: 0,
-            energy: 0, speechiness: 0, acousticness: 0, instrumentalness: 0, liveness: 0,
-            valence: 0, loudness: 0, tempo: 0, duration_ms: 0, track_popularity: 0
-        };
+        var genreData = map[genre] || { count: 0 };
+        dimensions.forEach(function(attr) {
+            genreData[attr] = (genreData[attr] || 0) + item[attr];
+        });
         genreData.count++;
-        genreData.danceability += item.danceability;
-        genreData.energy += item.energy;
-        genreData.speechiness += item.speechiness;
-        genreData.acousticness += item.acousticness;
-        genreData.instrumentalness += item.instrumentalness;
-        genreData.liveness += item.liveness;
-        genreData.valence += item.valence;
-        genreData.loudness += item.loudness;
-        genreData.tempo += item.tempo;
-        genreData.duration_ms += item.duration_ms;
-        genreData.track_popularity += item.track_popularity;
         map[genre] = genreData;
         return map;
     }, {});
 
-    for (var genre in playlistFrequencyMap) {
-        var data = playlistFrequencyMap[genre];
-        data.danceability /= data.count;
-        data.energy /= data.count;
-        data.speechiness /= data.count;
-        data.acousticness /= data.count;
-        data.instrumentalness /= data.count;
-        data.liveness /= data.count;
-        data.valence /= data.count;
-        data.loudness /= data.count;
-        data.tempo /= data.count;
-        data.duration_ms /= data.count;
-        data.track_popularity /= data.count;
-    }
-
-    var genreArray = Object.keys(playlistFrequencyMap).map(function (key) {
-        return {key: key, value: playlistFrequencyMap[key]};
+    Object.values(playlistFrequencyMap).forEach(function(data) {
+        dimensions.forEach(function(attr) {
+            data[attr] /= data.count;
+        });
     });
-    return genreArray
-}
 
+    return Object.entries(playlistFrequencyMap).map(function ([key, value]) {
+        return { key, value };
+    });
+}
 
 function convertToChartData(genreArray) {
     return genreArray.map(function (genre) {
         return {
             className: genre.key,
-            axes: [
-                {radar_axis: "danceability", value: genre.value.danceability},
-                {radar_axis: "energy", value: genre.value.energy},
-                {radar_axis: "speechiness", value: genre.value.speechiness},
-                {radar_axis: "acousticness", value: genre.value.acousticness},
-                {radar_axis: "instrumentalness", value: genre.value.instrumentalness},
-                {radar_axis: "liveness", value: genre.value.liveness},
-                {radar_axis: "valence", value: genre.value.valence},
-                {radar_axis: "loudness", value: genre.value.loudness},
-                {radar_axis: "tempo", value: genre.value.tempo},
-                {radar_axis: "duration_ms", value: genre.value.duration_ms},
-                {radar_axis: "track_popularity", value: genre.value.track_popularity},
-            ]
+            axes: dimensions.map(function(attr) {
+                return { radar_axis: attr, value: genre.value[attr] };
+            })
         };
     });
 }
+
 
 var chartDiv = document.getElementById('radar-container');
 
@@ -79,7 +47,7 @@ var RadarChart = {
         TickLength: 10,
         maxValue: 0,
         minValue: 0,
-        radians: 2 * Math.PI,
+        radians: -2 * Math.PI,
         radar_axisLine: true,
         radar_axisText: true,
         circles: true,
@@ -322,24 +290,21 @@ var RadarChart = {
                 // content
                 data.forEach(function (d) {
                     d.axes.forEach(function (radar_axis, i) {
-                        // Use individual radar_axis max value for scaling
+                        // console.log(radar_axis)
                         var radar_axisMaxValue = allradar_axis[i].maxValue - cfg.minValue;
                         var radar_axisMinValue = allradar_axis[i].minValue - cfg.minValue;
-                        if (radar_axisMaxValue > 0) {
-                            var radar_axisRange = radar_axisMaxValue - radar_axisMinValue;
-                            var normalizedValue = (radar_axis.value - radar_axisMinValue) / radar_axisRange;
-                            radar_axis.x = (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
-                            radar_axis.y = (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
-                        } else {
-                            var radar_axisRange = radar_axisMaxValue - radar_axisMinValue;
-                            var normalizedValue = -(radar_axis.value - radar_axisMaxValue) / radar_axisRange;
-                            radar_axis.x = (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
-                            radar_axis.y = (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
+                        var radar_axisRange = radar_axisMaxValue - radar_axisMinValue;
+                        var normalizedValue;
 
-                        }
+                            normalizedValue = (radar_axis.value - radar_axisMinValue) / radar_axisRange;
+                            normalizedValue = radar_axis.value / radar_axisMaxValue;
 
+                        radar_axis.x = (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, normalizedValue * cfg.factor);
+                        radar_axis.y = (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
                     });
                 });
+
+
                 var polygon = container.selectAll(".area").data(data, cfg.radar_axisJoin);
 
                 var polygonType = 'polygon';
@@ -369,6 +334,7 @@ var RadarChart = {
 
                 polygon
                     .each(function (d, i) {
+
                         var classed = {'d3-exit': 0}; // if exiting element is being reused
                         classed['radar-chart-serie' + i] = 1;
                         if (d.className) {
@@ -387,6 +353,7 @@ var RadarChart = {
                     // svg attrs with js
                     .attr('points', function (d) {
                         return d.axes.map(function (p) {
+                            //console.log(p)
                             return [p.x, p.y].join(',');
                         }).join(' ');
                     })
@@ -418,7 +385,7 @@ var RadarChart = {
 
                     var circle = circleGroups.selectAll('.circle').data(function (datum, i) {
                         return datum.axes.map(function (d) {
-                            return [d, i];
+                            return [d, i, datum.className];
                         });
                     });
 
@@ -450,8 +417,7 @@ var RadarChart = {
                         })
                         // styles should only be transitioned with css
                         .style('fill', function (d) {
-                            console.log(d);
-                            return color(genre_index[d[1]], 1);
+                            return color(d[2], 1);
                         })
                         .transition().duration(cfg.transitionDuration)
                         // svg attrs with js
@@ -515,5 +481,3 @@ drawRadarPlot = function (data) {
         return;
     RadarChart.draw("#radar-container", convertToChartData(getPlaylistFrequency(data)));
 }
-
-
