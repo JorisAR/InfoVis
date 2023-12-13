@@ -483,55 +483,58 @@ var RadarChart = {
           .style('fill', function(d) { return color(genre_index[d[i]], 1); })
           .transition().duration(cfg.transitionDuration)
           // svg attrs with js
-          .attr('r', cfg.radius)
-          .attr('cx', function(d) {
-            return d[0].x;
-          })
-          .attr('cy', function(d) {
-            return d[0].y;
-          })
-          .each('start', function() {
-            d3.select(this).classed('d3-enter', 0); // trigger css transition
-          });
+              .attr('r', cfg.radius)
+              .attr('cx', function(d) {
+                  return d[0].x;
+              })
+              .attr('cy', function(d) {
+                  return d[0].y;
+              })
+              .each('start', function() {
+                  d3.select(this).classed('d3-enter', 0); // trigger css transition
+              });
 
-          //Make sure layer order is correct
-          var poly_node = polygon.node();
-          poly_node.parentNode.appendChild(poly_node);
+            //Make sure layer order is correct
+            var poly_node = polygon.node();
+            poly_node.parentNode.appendChild(poly_node);
 
-          var cg_node = circleGroups.node();
-          cg_node.parentNode.appendChild(cg_node);
+            var cg_node = circleGroups.node();
+            cg_node.parentNode.appendChild(cg_node);
 
-          // ensure tooltip is upmost layer
-          var tooltipEl = tooltip.node();
-          tooltipEl.parentNode.appendChild(tooltipEl);
+            // ensure tooltip is upmost layer
+            var tooltipEl = tooltip.node();
+            tooltipEl.parentNode.appendChild(tooltipEl);
         }
       });
     }
 
-    radar.config = function(value) {
-      if(!arguments.length) {
-        return cfg;
-      }
-      if(arguments.length > 1) {
-        cfg[arguments[0]] = arguments[1];
-      }
-      else {
-        d3.entries(value || {}).forEach(function(option) {
-          cfg[option.key] = option.value;
-        });
-      }
+      radar.config = function(value) {
+          if(!arguments.length) {
+              return cfg;
+          }
+          if(arguments.length > 1) {
+              cfg[arguments[0]] = arguments[1];
+          }
+          else {
+              d3.entries(value || {}).forEach(function(option) {
+                  cfg[option.key] = option.value;
+              });
+          }
+          return radar;
+      };
+
       return radar;
-    },
+  },
     draw: function(id, d, options) {
-      var chart = RadarChart.chart().config(options);
-      var cfg = chart.config();
-      
-      d3.select(id).select('svg').remove();
-      d3.select(id)
-      .append("svg")
-      .attr("width", cfg.radar_w)
-      .attr("height", cfg.radar_h)
-      .datum(d)
-      .call(chart);
+        var chart = RadarChart.chart().config(options);
+        var cfg = chart.config();
+
+        d3.select(id).select('svg').remove();
+        d3.select(id)
+            .append("svg")
+            .attr("width", cfg.radar_w)
+            .attr("height", cfg.radar_h)
+            .datum(d)
+            .call(chart);
     }
-  };
+};
