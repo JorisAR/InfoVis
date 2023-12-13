@@ -281,7 +281,7 @@ button#exclude-data:hover {
   grid-row: 3 / span 4;
 }
 
-#item5 {
+#my_dataviz {
   grid-column: 3 / span 5;
   grid-row: 3 / span 4;
 }
