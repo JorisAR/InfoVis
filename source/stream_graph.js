@@ -1,21 +1,5 @@
-var genre_colors = {
-    "pop": [185,56,23],
-    "edm": [318,65,57],
-    "r&b": [334,80,44],
-    "rock": [10,30,12],
-    "latin": [1,100,69],
-    "rap": [120,56,40],
-};
-
-function hsv_to_color(d) {
-    const a = 1;
-    console.log(d)
-    const c = genre_colors[d];
-    return ["hsla(",c[0],",",c[1],"%,",c[2],"%,",a,")"].join("");
-}
-
 var streamDiv = document.getElementById('stream_graph');
-
+var normalizeStreamData = false
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 30, bottom: 0, left: 10},
     streamWidth = streamDiv.clientWidth - 100,
@@ -41,16 +25,11 @@ var Tooltip = d3.select("body")
     .style("border-radius", "5px")
     .style("padding", "5px");
 
-d3.csv("../data/spotify_songs.csv", function(d) {
-    // Convert quantitative scales to floats
-    for (var k in d) {
-        if (!isNaN(d[k] - 0) && k != 'id') {
-            d[k] = parseFloat(d[k]) || 0;
-        }
-    };
-    return d;
-}, function(error, data) {
-    if (error) throw error;
+
+const drawStreamGraph = function (data) {
+    stream_svg.selectAll("g").remove();
+    stream_svg.selectAll("text").remove();
+    stream_svg.selectAll("path").remove();
 
     // Group data by genre and track_album_release_date
     var nestedData = d3.nest()
@@ -62,8 +41,10 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         })
         .entries(data);
 
-    console.log("nestedData")
-    console.log(nestedData)
+    if(debug){
+        console.log("nestedData")
+        console.log(nestedData)
+    }
 
 // Transform the nested data into a suitable format for d3.layout.stack()
     var dataPerYear = nestedData.reduce(function(acc, d) {
@@ -87,25 +68,28 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         return a.x - b.x;
     });
 
-    // First, calculate the total for each year
-    var totalsPerYear = {};
-    dataPerYear.forEach(function(d) {
-        var total = 0;
-        Object.keys(genre_colors).forEach(function(genre) {
-            total += d[genre];
+    if(normalizeStreamData) {
+        var totalsPerYear = {};
+        dataPerYear.forEach(function(d) {
+            var total = 0;
+            Object.keys(genre_colors).forEach(function(genre) {
+                total += d[genre];
+            });
+            totalsPerYear[d.x] = total;
         });
-        totalsPerYear[d.x] = total;
-    });
-
-    // Then, normalize the values
-    dataPerYear.forEach(function(d) {
-        Object.keys(genre_colors).forEach(function(genre) {
-            d[genre] = d[genre] / totalsPerYear[d.x];
+        dataPerYear.forEach(function(d) {
+            Object.keys(genre_colors).forEach(function(genre) {
+                d[genre] = d[genre] / totalsPerYear[d.x];
+            });
         });
-    });
+    }
 
-    console.log("dataPerYear")
-    console.log(dataPerYear)
+
+
+    if(debug){
+        console.log("dataPerYear")
+        console.log(dataPerYear)
+    }
 
     // Calculate the maximum total track_popularity across all genres for any given year
     var maxPopularity = d3.max(dataPerYear, function(d) {
@@ -115,7 +99,6 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         }
         return total;
     });
-    console.log("max popularity: " + maxPopularity)
 
 // In D3 v3, we use d3.layout.stack()
     var stack = d3.layout.stack()
@@ -132,9 +115,10 @@ d3.csv("../data/spotify_songs.csv", function(d) {
     });
 
     var stackedData = stack(layers);
-    console.log("stackedData");
-    console.log(stackedData);
-
+    if(debug){
+        console.log("stackedData");
+        console.log(stackedData);
+    }
 
 // Define the x, y, and color scales
     var x = d3.scale.linear()
@@ -142,11 +126,7 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         .range([0, streamWidth]);
     var y = d3.scale.linear()
         .domain([0, maxPopularity])
-        .range([streamHeight * .78, height * .02]);
-
-    var color = function(genre) {
-        return hsv_to_color(genre);
-    }
+        .range([streamHeight * .78, streamHeight * .02]);
 
     var mouseover = function(d) {
         Tooltip.style("opacity", 1)
@@ -168,9 +148,9 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         .attr("transform", "translate(0," + streamHeight*0.8 + ")")
         .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight*.8).ticks(5))
         .select(".domain").remove()
-// Customization
+
     stream_svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
-// Add X axis label:
+
     stream_svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", streamWidth)
@@ -181,6 +161,8 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         .x(function(d) { return x(d.x); })
         .y0(function(d) { return y(d.y0); })
         .y1(function(d) { return y(d.y0 + d.y); });
+
+
 
     stream_svg
         .selectAll("mylayers")
@@ -193,6 +175,9 @@ d3.csv("../data/spotify_songs.csv", function(d) {
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave);
-});
+};
 
-
+const toggleNormalization = function (){
+    normalizeStreamData = !normalizeStreamData;
+    drawStreamGraph(activeData);
+}

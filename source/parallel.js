@@ -1,26 +1,3 @@
-function conversor(d) {
-  d.danceability = +d.danceability;  // convert string to number
-  d.track_popularity = +d.track_popularity;
-  d.energy = +d.energy;
-  d.key = +d.key;
-  d.loudness = +d.loudness;
-  d.mode = +d.mode;
-  d.speechiness = +d.speechiness;
-  d.acousticness = +d.acousticness;
-  d.instrumentalness = +d.instrumentalness;
-  d.liveness= +d.liveness;
-  d.valence = +d.valence;
-  d.tempo = +d.tempo;
-  d.duration_ms = +d.duration_ms;
-  return d;
-}
-
-
-async function getDataset() {
-  const data = await d3.csv("data/spotify_songs.csv", conversor);
-  return data;
-}
-
 var chartDiv = document.getElementById('chart');
 
 // var width = chartDiv.clientWidth,
@@ -28,9 +5,6 @@ var chartDiv = document.getElementById('chart');
 
   var width = document.body.clientWidth -200,
     height = d3.max([document.body.clientHeight-540, 240]);
-
-    
-    
 
 var m = [60, 0, 10, 0],
     w = width - m[1] - m[3],
@@ -50,34 +24,6 @@ var m = [60, 0, 10, 0],
     brush_count = 0,
     excluded_playlist_genres = [],
     excludeColumns = ["key", "mode"]; // list of columns to exclude
-
-var genre_colors = {
-  "pop": [185,56,23],
-  "edm": [318,65,57],
-  "r&b": [334,80,44],
-  "rock": [10,30,12],
-  "latin": [1,100,69],
-  "rap": [120,56,40],
-  // "speechiness": [28,100,52],
-  // "acousticness": [41,75,61],
-  // "instrumentalness": [60,86,61],
-  // "liveness": [30,100,73],
-  // "valence": [318,65,67],
-  // "tempo": [274,30,76],
-  // "duration": [20,49,49],
-  // "Legumes and Legume Products": [334,80,84],
-  // "Meals, Entrees, and Sidedishes": [185,80,45],
-  // "Nut and Seed Products": [10,30,42],
-  // "Pork Products": [339,60,49],
-  // "Poultry Products": [359,69,49],
-  // "Restaurant Foods": [204,70,41],
-  // "Sausages and Luncheon Meats": [1,100,79],
-  // "Snacks": [189,57,75],
-  // "Soups, Sauces, and Gravies": [110,57,70],
-  // "Spices and Herbs": [214,55,79],
-  // "Sweets": [339,60,75],
-  // "Vegetables and Vegetable Products": [120,56,40]
-};
 
 // Scale chart and canvas height
 d3.select("#chart")
@@ -114,17 +60,7 @@ var parallel_svg = d3.select("svg")
     .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
 // Load the data and visualization
-d3.csv("data/spotify_songs.csv", function(raw_data) {
-  // Convert quantitative scales to floats
-  data = raw_data.map(function(d) {
-    for (var k in d) {
-      if (!_.isNaN(raw_data[0][k] - 0) && k != 'id') {
-        d[k] = parseFloat(d[k]) || 0;
-      }
-    };
-    return d;
-  });
-
+drawParallelCoordinates = function(data) {
   // Extract the list of numerical dimensions and create a scale for each.
 
   xscale.domain(dimensions = d3.keys(data[0]).filter(function(k) {
@@ -223,8 +159,7 @@ d3.csv("data/spotify_songs.csv", function(raw_data) {
 
   // Render full foreground
   brush();
-
-});
+};
 
 // copy one canvas to another, grayscale
 function gray_copy(source, target) {
@@ -264,10 +199,12 @@ function create_legend(genre_colors,brush) {
           d3.select(this).attr("title", "Hide playlist_genre")
           excluded_playlist_genres = _.difference(excluded_playlist_genres,[d]);
           brush();
+          updateData();
         } else {
           d3.select(this).attr("title", "Show playlist_genre")
           excluded_playlist_genres.push(d);
           brush();
+          updateData();c
         }
       });
 
@@ -419,10 +356,6 @@ function path(d, ctx, color) {
   ctx.stroke();
 };
 
-function color(d,a) {
-  var c = genre_colors[d];
-  return ["hsla(",c[0],",",c[1],"%,",c[2],"%,",a,")"].join("");
-}
 
 function position(d) {
   var v = dragging[d];
@@ -430,7 +363,6 @@ function position(d) {
 }
 
 // Handles a brush event, toggling the display of foreground lines.
-// TODO refactor
 function brush() {
   brush_count++;
   var actives = dimensions.filter(function(p) { return !yscale[p].brush.empty(); }),
@@ -551,10 +483,15 @@ function paths(selected, ctx, count) {
   d3.timer(animloop);
 }
 
-// transition ticks for reordering, rescaling and inverting
+/**
+ * Called when user has finished selecting values in a column
+ * @param d: updated dimension
+ * @param extent
+ */
 function update_ticks(d, extent) {
   // update brushes
-  console.log(yscale[d]);
+  if(debug)
+    console.log(yscale[d]);
   if (d) {
     var brush_el = d3.selectAll(".brush")
         .filter(function(key) { return key == d; });
@@ -580,7 +517,6 @@ function update_ticks(d, extent) {
     .each(function(d,i) {
       // hide lines for better performance
       d3.select(this).selectAll('line').style("display", "none");
-      console.log(yscale[d]);
       // transition axis numbers
       d3.select(this)
         .transition()
@@ -596,6 +532,14 @@ function update_ticks(d, extent) {
         .style('font-size', null)
         .style('display', null);
     });
+
+  updateData()
+
+}
+
+function updateData(){
+  var event = new CustomEvent('dataUpdated', {detail: actives()});
+  document.dispatchEvent(event);
 }
 
 // Rescale to new dataset domain
@@ -642,7 +586,6 @@ function actives() {
   if (query > 0) {
     selected = search(selected, query);
   }
-  console.log(selected);
   return selected;
 }
 
@@ -655,7 +598,6 @@ function export_csv() {
 window.onresize = function() {
   width = document.body.clientWidth -200;
   height = d3.max([document.body.clientHeight-540, 240]);
-  console.log(width);
 
   w = width - m[1] - m[3],
   h = height - m[0] - m[2];

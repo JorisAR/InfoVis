@@ -5,7 +5,7 @@
     <title>Song Explorer</title>
     <link rel="stylesheet" type="text/css" href="style.css">  
     <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
-    
+
   </head>
   <body>
     
@@ -14,6 +14,7 @@
       <button title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
       <button title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
       <button title="Export data as CSV" id="export-data">Export</button>
+      <button title="Toggle normalize temporal data" onclick="toggleNormalization()">Toggle normalize temporal data</button>
       <div class="controls">
         <strong id="rendered-count"></strong>/<strong id="selected-count"></strong><!--<strong id="data-count"></strong>-->
         <div class="fillbar"><div id="selected-bar"><div id="rendered-bar">&nbsp;</div></div></div>
@@ -53,24 +54,14 @@
         <div id="radar-container" ></div>
         <div id="stream_graph"></div>
     </div>
-  </div>
     <script type="text/javascript">
     //RadarChart.defaultConfig.levelTick = true;
     </script>
 
   </body>
   <script src="https://underscorejs.org/underscore.js"></script>
-  <script src="parallel.js"></script>
-  <script src="stream_graph.js"></script>
-  <script type="text/javascript" src="radar.js"></script>
-  <script>
-    getPlaylistFrequency(function(genreArray) {
-      genreArray = convertToChartData(genreArray);
-      showRadar(genreArray), actives();
-  });
-  function showRadar(data){
-  var chart = RadarChart.chart();
-  RadarChart.draw("#radar-container", data);
-  }
-  </script>
+  <script src="source/config.js"></script>
+  <script src="source/parallel.js"></script>
+  <script src="source/stream_graph.js"></script>
+  <script type="text/javascript" src="source/radar.js"></script>
 </html>
