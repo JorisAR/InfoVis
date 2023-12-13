@@ -521,20 +521,17 @@ var RadarChart = {
         });
       }
       return radar;
-    };
-
-    return radar;
-  },
-  draw: function(id, d, options) {
-    var chart = RadarChart.chart().config(options);
-    var cfg = chart.config();
-    
-    d3.select(id).select('svg').remove();
-    d3.select(id)
-    .append("svg")
-    .attr("width", cfg.radar_w)
-    .attr("height", cfg.radar_h)
-    .datum(d)
-    .call(chart);
-  }
-};
+    },
+    draw: function(id, d, options) {
+      var chart = RadarChart.chart().config(options);
+      var cfg = chart.config();
+      
+      d3.select(id).select('svg').remove();
+      d3.select(id)
+      .append("svg")
+      .attr("width", cfg.radar_w)
+      .attr("height", cfg.radar_h)
+      .datum(d)
+      .call(chart);
+    }
+  };

@@ -44,7 +44,7 @@ var m = [60, 0, 10, 0],
     foreground,
     background,
     highlighted,
-    dimensions,                           
+    dimensions,
     legend,
     render_speed = 50,
     brush_count = 0,
@@ -107,7 +107,7 @@ background.strokeStyle = "rgba(0,100,160,0.1)";
 background.lineWidth = 1.7;
 
 // SVG for ticks, labels, and interactions
-var svg = d3.select("svg")
+var parallel_svg = d3.select("svg")
     .attr("width", w + m[1] + m[3])
     .attr("height", h + m[0] + m[2])
   .append("svg:g")
@@ -134,9 +134,9 @@ d3.csv("data/spotify_songs.csv", function(raw_data) {
   }).sort());
 
   // Add a playlist_genre element for each dimension.
-  var g = svg.selectAll(".dimension")
+  var g = parallel_svg.selectAll(".dimension")
       .data(dimensions)
-    .enter().append("svg:g")
+    .enter().append("parallel_svg:g")
       .attr("class", "dimension")
       .attr("transform", function(d) { return "translate(" + xscale(d) + ")"; })
       .call(d3.behavior.drag()
@@ -258,7 +258,7 @@ function create_legend(genre_colors,brush) {
   var legend = legend_data
     .enter().append("div")
       .attr("title", "Hide playlist_genre")
-      .on("click", function(d) { 
+      .on("click", function(d) {
         // toggle playlist_genre
         if (_.contains(excluded_playlist_genres, d)) {
           d3.select(this).attr("title", "Hide playlist_genre")
@@ -279,16 +279,16 @@ function create_legend(genre_colors,brush) {
   legend
     .append("span")
     .attr("class", "tally")
-    .text(function(d,i) { return 0});  
+    .text(function(d,i) { return 0});
 
   legend
     .append("span")
-    .text(function(d,i) { return " " + d});  
+    .text(function(d,i) { return " " + d});
 
   return legend;
 }
- 
-// render polylines i to i+render_speed 
+
+// render polylines i to i+render_speed
 function render_range(selection, i, max, opacity) {
   selection.slice(i,max).forEach(function(d) {
     path(d, foreground, color(d.playlist_genre,opacity));
@@ -321,7 +321,7 @@ function data_table(sample) {
       .text(function(d) { return d.track_artist + " - " + d.track_name; })
 }
 
-// Adjusts rendering speed 
+// Adjusts rendering speed
 function optimize(timer) {
   var delta = (new Date()).getTime() - timer;
   render_speed = Math.max(Math.ceil(render_speed * 30 / delta), 8);
@@ -446,7 +446,7 @@ function brush() {
           .selectAll('text')
           .style('font-weight', 'bold')
           .style('font-size', '13px')
-          .style('display', function() { 
+          .style('display', function() {
             var value = d3.select(this).data();
             return extent[0] <= value && value <= extent[1] ? null : "none"
           });
@@ -462,7 +462,7 @@ function brush() {
         .style('display', null);
     });
     ;
- 
+
   // bold dimensions with label
   d3.selectAll('.label')
     .style("font-weight", function(dimension) {
@@ -517,7 +517,7 @@ function brush() {
     });
 
   legend.selectAll(".tally")
-    .text(function(d,i) { return tallies[d].length });  
+    .text(function(d,i) { return tallies[d].length });
 
   // Render selected lines
   paths(selected, foreground, brush_count, true);
@@ -673,7 +673,7 @@ window.onresize = function() {
       .attr("height", h + m[0] + m[2])
     .select("g")
       .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-  
+
   xscale = d3.scale.ordinal().rangePoints([0, w], 1).domain(dimensions);
   dimensions.forEach(function(d) {
     yscale[d].range([h, 0]);
