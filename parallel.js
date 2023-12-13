@@ -17,16 +17,20 @@ function conversor(d) {
 
 
 async function getDataset() {
-  const data = await d3.csv("../data/spotify_songs.csv", conversor);
+  const data = await d3.csv("data/spotify_songs.csv", conversor);
   return data;
 }
 
-// var width = document.body.clientWidth,
-//     height = d3.max([document.body.clientHeight-540, 240]);
 var chartDiv = document.getElementById('chart');
 
-var width = chartDiv.clientWidth,
-    height =  height = d3.max([document.body.clientHeight-340, 340]);
+// var width = chartDiv.clientWidth,
+//     height = document.body.clientHeight/2;
+
+  var width = document.body.clientWidth -200,
+    height = d3.max([document.body.clientHeight-540, 240]);
+
+    
+    
 
 var m = [60, 0, 10, 0],
     w = width - m[1] - m[3],
@@ -110,7 +114,7 @@ var svg = d3.select("svg")
     .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
 // Load the data and visualization
-d3.csv("../data/spotify_songs.csv", function(raw_data) {
+d3.csv("data/spotify_songs.csv", function(raw_data) {
   // Convert quantitative scales to floats
   data = raw_data.map(function(d) {
     for (var k in d) {
@@ -550,6 +554,7 @@ function paths(selected, ctx, count) {
 // transition ticks for reordering, rescaling and inverting
 function update_ticks(d, extent) {
   // update brushes
+  console.log(yscale[d]);
   if (d) {
     var brush_el = d3.selectAll(".brush")
         .filter(function(key) { return key == d; });
@@ -575,7 +580,7 @@ function update_ticks(d, extent) {
     .each(function(d,i) {
       // hide lines for better performance
       d3.select(this).selectAll('line').style("display", "none");
-
+      console.log(yscale[d]);
       // transition axis numbers
       d3.select(this)
         .transition()
@@ -648,8 +653,9 @@ function export_csv() {
 
 // scale to window size
 window.onresize = function() {
-  width = chartDiv.clientWidth
-  height = d3.max([document.body.clientHeight-340, 340]);
+  width = document.body.clientWidth -200;
+  height = d3.max([document.body.clientHeight-540, 240]);
+  console.log(width);
 
   w = width - m[1] - m[3],
   h = height - m[0] - m[2];
@@ -679,7 +685,7 @@ window.onresize = function() {
   d3.selectAll(".brush")
     .each(function(d) { d3.select(this).call(yscale[d].brush = d3.svg.brush().y(yscale[d]).on("brush", brush)); })
   brush_count++;
-
+ 
   // update axis placement
   axis = axis.ticks(1+height/50),
   d3.selectAll(".axis")

@@ -26,8 +26,6 @@
   </head>
   <body>
     <h1>Radar Chart</h1>
-Width: <input type="number" name="w" id="w" class="form-control" value="600" min="200" max="2000" step="" required="required" title="">
-Height: <input type="number" name="h" id="h" class="form-control" value="600" min="200" max="2000" step="" required="required" title="">
 </p>
 <script type="text/javascript">
     getPlaylistFrequency(function(genreArray) {
@@ -36,16 +34,12 @@ Height: <input type="number" name="h" id="h" class="form-control" value="600" mi
             });
     function showRadar(data){
         var chart = RadarChart.chart();
-        w = document.getElementById("w").value,
-        h = document.getElementById("h").value,
         RadarChart.defaultConfig.radius = 3;
-        RadarChart.defaultConfig.w = w;
-        RadarChart.defaultConfig.h = h;
         RadarChart.draw("#chart-container", data);
     // function animate(elem,time) {
     //     if( !elem) return;
     //     var to = elem.offsetTop;
-    //     var from = window.scrollY;
+    //     var from = window.scrollY;Faxis
     //     var start = new Date().getTime(),
     //         timer = setInterval(function() {
     //             var step = Math.min(1,(new Date().getTime()-start)/time);
