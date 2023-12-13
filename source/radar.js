@@ -32,14 +32,13 @@ function convertToChartData(genreArray) {
     });
 }
 
-
-var chartDiv = document.getElementById('radar-container');
+var radarDiv = document.getElementById('radar-container');
 
 var RadarChart = {
     defaultConfig: {
         containerClass: 'radar-chart',
-        radar_w: chartDiv.clientWidth,
-        radar_h: chartDiv.clientWidth,
+        radar_w: radarDiv.clientWidth,
+        radar_h: radarDiv.clientWidth,
         factor: 0.95,
         factorLegend: 1,
         levels: 3,
@@ -469,8 +468,8 @@ var RadarChart = {
         d3.select(id).select('svg').remove();
         d3.select(id)
             .append("svg")
-            .attr("width", cfg.radar_w)
-            .attr("height", cfg.radar_h)
+            .attr("width", cfg.radar_w + 50)
+            .attr("height", cfg.radar_h + 50)
             .datum(d)
             .call(chart);
     }

@@ -1,4 +1,6 @@
-let parallelWidth = document.body.clientWidth -200;
+var parallelDiv = document.getElementById('chart');
+
+let parallelWidth = parallelDiv.clientWidth -10;
 let parallelHeight = d3.max([document.body.clientHeight-540, 240]);
 
 var m = [60, 0, 10, 0],
@@ -335,7 +337,7 @@ function path(d, ctx, color) {
 function path(d, ctx, color) {
   if (color) ctx.strokeStyle = color;
   ctx.beginPath();
-  var x0 = xscale(0),
+  var x0 = xscale(0)-15,
       y0 = yscale[dimensions[0]](d[dimensions[0]]);   // left edge
   ctx.moveTo(x0,y0);
   dimensions.map(function(p,i) {
@@ -349,7 +351,7 @@ function path(d, ctx, color) {
     x0 = x;
     y0 = y;
   });
-  ctx.lineTo(x0+15, y0);                               // right edge
+  ctx.lineTo(x0, y0);                               // right edge
   ctx.stroke();
 };
 
@@ -594,8 +596,8 @@ function export_csv() {
 
 // scale to window size
 window.onresize = function() {
-    parallelWidth = document.body.clientWidth -200;
-    parallelHeight = d3.max([document.body.clientHeight-540, 240]);
+  width = document.body.clientWidth -200;
+  height = d3.max([document.body.clientHeight-540, 240]);
 
   w = parallelWidth - m[1] - m[3],
   h = parallelHeight - m[0] - m[2];
