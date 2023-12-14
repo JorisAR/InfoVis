@@ -21,6 +21,45 @@ const color = function(genre, alpha=1) {
 };
 
 
+
+function update(data) {
+    updateStreamGraphDropdown()
+    drawRadarPlot(data)
+    drawStreamGraph(data)
+}
+
+function reset() {
+    if(!confirm("you sure?\nIt doesnt work yet:/"))
+        return;
+    console.log("reset")
+    reset_parallel();
+}
+
+// Export data
+function export_csv() {
+    console.log(actives())
+}
+
+function preprocess(d) {
+    // Create an object to keep track of unique tracks
+    var uniqueTracks = {};
+
+    // Filter out duplicate tracks
+    var filteredData = d.filter(function(track) {
+        var key = track.track_id + track.track_name + track.track_artist;  // Create a unique key for each track
+        if (uniqueTracks.hasOwnProperty(key)) {
+            // If this key is already in uniqueTracks, then it's a duplicate, so we filter it out
+            return false;
+        } else {
+            // If it's not in uniqueTracks, then it's unique, so we keep it and add its key to uniqueTracks
+            uniqueTracks[key] = true;
+            return true;
+        }
+    });
+
+    return filteredData;
+}
+
 /**
  * Load data for the first time.
  */
@@ -34,11 +73,11 @@ d3.csv("../data/spotify_songs.csv", function(d) {
     return d;
 }, function(error, d) {
     if (error) throw error;
+    d = preprocess(d);
     data = d;
     activeData = d;
-    drawParallelCoordinates(data)
-    drawRadarPlot(data)
-    drawStreamGraph(data)
+    drawParallelCoordinates(data);
+    update(data);
 });
 
 // Listen for the event
@@ -47,7 +86,7 @@ document.addEventListener('dataUpdated', function (e) {
     activeData = e.detail;
     if(debug)
         console.log('Updated data:', activeData);
-    drawStreamGraph(activeData);
-    drawRadarPlot(activeData)
+
+    update(activeData);
 }, false);
 

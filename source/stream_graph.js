@@ -1,8 +1,10 @@
 var streamDiv = document.getElementById('stream_graph');
 var normalizeStreamData = false
+var selectedStreamGraphDimension = "track_popularity"
+
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 30, bottom: 0, left: 10},
-    streamWidth = streamDiv.clientWidth - 100,
+    streamWidth = streamDiv.clientWidth - 250,
     streamHeight =  d3.max([document.body.clientHeight-540, 240]);;
 
 // append the stream_svg object to the body of the page
@@ -37,7 +39,7 @@ const drawStreamGraph = function (data) {
         .key(function(d) { return new Date(d.track_album_release_date).getFullYear(); })  // Then group by year
         .rollup(function(v) {
             // For each unique genre and year combination, sum the track_popularity
-            return d3.sum(v, function(d) { return d.track_popularity; });
+            return d3.mean(v, function(d) { return d[selectedStreamGraphDimension]; });
         })
         .entries(data);
 
@@ -144,10 +146,13 @@ const drawStreamGraph = function (data) {
         d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
     }
 
+
+
     stream_svg.append("g")
         .attr("transform", "translate(0," + streamHeight*0.8 + ")")
         .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight*.8).ticks(5))
         .select(".domain").remove()
+
 
     stream_svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
 
@@ -162,8 +167,6 @@ const drawStreamGraph = function (data) {
         .y0(function(d) { return y(d.y0); })
         .y1(function(d) { return y(d.y0 + d.y); });
 
-
-
     stream_svg
         .selectAll("mylayers")
         .data(stackedData)
@@ -175,9 +178,60 @@ const drawStreamGraph = function (data) {
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave);
+
+
+    // Create a brush
+    const timeBrush = d3.svg.brush()
+        .x(x)  // Use the same scale as the x-axis
+        .on("brushend", timeBrushed);  // Specify a callback function to be called when the brush is moved
+
+    // Append the brush to your SVG
+    stream_svg.append("g")
+        .attr("class", "brush")
+        .call(timeBrush)
+        .selectAll("rect")
+        .attr("height", streamHeight);  // Make the brush cover the full height of the graph
+
+    // Define the callback function to be called when the brush is moved
+    function timeBrushed() {
+        var extent = timeBrush.extent();
+        yearExtents = extent
+        brush()
+        // 'extent' is a two-element array representing the lower and upper bounds of the brush along the x-axis
+        // You can use 'extent' to determine which dates are currently selected and update your graph accordingly
+    }
 };
 
-const toggleNormalization = function (){
+const resetTimeBrush = function () {
+    yearExtents = originalYearExtents;
+    brush()
+}
+
+const toggleNormalization = function () {
     normalizeStreamData = !normalizeStreamData;
     drawStreamGraph(activeData);
+}
+
+const switchStreamDimension = function (value) {
+    selectedStreamGraphDimension = value;
+    drawStreamGraph(activeData);
+}
+
+const updateStreamGraphDropdown = function() {
+    var select = document.getElementById("selectStreamGraphDimension");
+    select.innerHTML = '';
+
+    for(var i = 0; i < dimensions.length; i++) {
+        var opt = dimensions[i];
+        var el = document.createElement("option");
+        el.textContent = opt;
+        el.value = opt;
+        select.appendChild(el);
+    }
+
+    if(dimensions.includes(selectedStreamGraphDimension))
+        select.value = selectedStreamGraphDimension;
+    else
+        select.value = dimensions[0];
+
 }

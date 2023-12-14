@@ -14,7 +14,14 @@
       <button title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
       <button title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
       <button title="Export data as CSV" id="export-data">Export</button>
+      <button title="Export data as CSV" id="reset" onclick="reset()">Reset</button>
+
       <button title="Toggle normalize temporal data" onclick="toggleNormalization()">Toggle normalize temporal data</button>
+      <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
+      <select id="selectStreamGraphDimension" onchange="switchStreamDimension(this.value);">
+        <option>Choose</option>
+      </select>
+
       <div class="controls">
         <strong id="rendered-count"></strong>/<strong id="selected-count"></strong><!--<strong id="data-count"></strong>-->
         <div class="fillbar"><div id="selected-bar"><div id="rendered-bar">&nbsp;</div></div></div>
@@ -24,6 +31,7 @@
           <button id="show-ticks" disabled="disabled">Show Ticks</button>
           <button id="dark-theme">Dark</button>
           <button id="light-theme" disabled="disabled">Light</button>
+
         </span>
       </div>
       <div style="clear:both;"></div>
