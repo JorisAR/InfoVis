@@ -29,6 +29,10 @@ var Tooltip = d3.select("body")
 
 
 const drawStreamGraph = function (data) {
+    if(data == null || data.length <= 0)
+        return;
+
+
     stream_svg.selectAll("g").remove();
     stream_svg.selectAll("text").remove();
     stream_svg.selectAll("path").remove();

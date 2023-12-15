@@ -3,7 +3,7 @@ const parallelDiv = document.getElementById('chart');
 let parallelWidth = parallelDiv.clientWidth - 10;
 let parallelHeight = d3.max([document.body.clientHeight - 540, 240]);
 
-
+var searchedData;
 let yearExtents, originalYearExtents;
 var m = [60, 0, 10, 0],
     w = parallelWidth - m[1] - m[3],
@@ -70,6 +70,7 @@ function initYearExtents(data) {
 
 // Load the data and visualization
 drawParallelCoordinates = function (data) {
+    searchedData = data;
     initYearExtents(data);
     // Extract the list of numerical dimensions and create a scale for each.
     xscale.domain(dimensions = d3.keys(data[0]).filter(function (k) {
@@ -396,8 +397,6 @@ function brush() {
             return yscale[p].brush.extent();
         });
 
-
-
     // hack to hide ticks beyond extent
     var b = d3.selectAll('.dimension')[0]
         .forEach(function (element, i) {
@@ -446,10 +445,12 @@ function brush() {
         });
 
     // free text search
-    var query = d3.select("#search")[0][0].value;
-    if (query.length > 0) {
-        selected = search(selected, query);
-    }
+    // todo remove this :)
+    // var query = d3.select("#searchTrackName")[0][0].value;
+    // //var query = d3.select("#searchArtist")[0][0].value;
+    // if (query.length > 0) {
+    //     selected = search(selected, query);
+    // }
 
     if (selected.length < data.length && selected.length > 0) {
         d3.select("#keep-data").attr("disabled", null);
@@ -458,8 +459,6 @@ function brush() {
         d3.select("#keep-data").attr("disabled", "disabled");
         d3.select("#exclude-data").attr("disabled", "disabled");
     }
-
-    console.log(selected)
 
     // total by playlist_genre
     var tallies = _(selected)
@@ -507,9 +506,7 @@ function paths(selected, ctx, count) {
 
     selection_stats(opacity, n, data.length)
 
-    shuffled_data = _.shuffle(selected);
 
-    data_table(shuffled_data.slice(0, 5));
 
     ctx.clearRect(0, 0, w + 1, h + 1);
 
@@ -517,7 +514,7 @@ function paths(selected, ctx, count) {
     function animloop() {
         if (i >= n || count < brush_count) return true;
         var max = d3.min([i + render_speed, n]);
-        render_range(shuffled_data, i, max, opacity);
+        render_range(_.shuffle(activeData), i, max, opacity);
         render_stats(max, n, render_speed);
         i = max;
         timer = optimize(timer);  // adjusts render_speed
@@ -741,7 +738,8 @@ function reset_parallel(){
 d3.select("#keep-data").on("click", keep_data);
 d3.select("#exclude-data").on("click", exclude_data);
 d3.select("#export-data").on("click", export_csv);
-d3.select("#search").on("keyup", brush);
+d3.select("#searchArtist").on("keyup", searchTrack);
+d3.select("#searchTrackName").on("keyup", searchTrack);
 
 
 // Appearance toggles
@@ -778,9 +776,31 @@ function light_theme() {
     d3.selectAll("#dark-theme").attr("disabled", null);
 }
 
-function search(selection, str) {
+function searchTrack() {
+    var trackNameQuery = d3.select("#searchTrackName")[0][0].value;
+    var artistQuery = d3.select("#searchArtist")[0][0].value;
+    searchedData = activeData;
+    if (trackNameQuery.length > 0) {
+        searchedData = searchTrackName(searchedData, trackNameQuery);
+    }
+    if (artistQuery.length > 0) {
+        searchedData = searchArtist(searchedData, artistQuery);
+    }
+    searchedData = _.shuffle(searchedData);
+
+    data_table(searchedData.slice(0, 5));
+}
+
+function searchTrackName(selection, str) {
     pattern = new RegExp(str, "i")
     return _(selection).filter(function (d) {
         return pattern.exec(d.track_name);
+    });
+}
+
+function searchArtist(selection, str) {
+    pattern = new RegExp(str, "i")
+    return _(selection).filter(function (d) {
+        return pattern.exec(d.track_artist);
     });
 }
