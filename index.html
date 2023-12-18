@@ -18,9 +18,6 @@
 
       <button title="Toggle normalize temporal data" onclick="toggleNormalization()">Toggle normalize temporal data</button>
       <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
-      <select id="selectStreamGraphDimension" onchange="switchStreamDimension(this.value);">
-        <option>Choose</option>
-      </select>
 
       <div class="controls">
         <strong id="rendered-count"></strong>/<strong id="selected-count"></strong><!--<strong id="data-count"></strong>-->
@@ -63,7 +60,11 @@
         </div>
         
         <div id="radar-container" ></div>
-        <div id="stream_graph"></div>
+        <div id="stream_graph">
+          <select id="selectStreamGraphDimension" onchange="switchStreamDimension(this.value);" style="position: absolute; z-index: 1;">
+            <option>Choose</option>
+          </select>
+        </div>
     </div>
     <script type="text/javascript">
     //RadarChart.defaultConfig.levelTick = true;

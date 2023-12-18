@@ -1,7 +1,7 @@
 const parallelDiv = document.getElementById('chart');
 
 let parallelWidth = parallelDiv.clientWidth - 10;
-let parallelHeight = d3.max([document.body.clientHeight/2, 240]);
+let parallelHeight = d3.max([document.body.clientHeight/2, 220]);
 
 var searchedData;
 let yearExtents, originalYearExtents;
