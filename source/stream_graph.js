@@ -4,7 +4,7 @@ var selectedStreamGraphDimension = "track_popularity"
 
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 30, bottom: 0, left: 10},
-    streamWidth = streamDiv.clientWidth - 250,
+    streamWidth = streamDiv.clientWidth - 40,
     streamHeight =  d3.max([document.body.clientHeight-540, 240]);;
 
 // append the stream_svg object to the body of the page
