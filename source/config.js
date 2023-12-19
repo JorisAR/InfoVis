@@ -1,4 +1,5 @@
 const debug = false;
+var originalData;
 var data;
 var activeData;
 
@@ -23,22 +24,43 @@ const color = function(genre, alpha=1) {
 
 
 function update(data) {
-    updateStreamGraphDropdown()
-    drawRadarPlot(data)
-    drawStreamGraph(data)
+    updateStreamGraphDropdown();
+    drawRadarPlot(data);
+    drawStreamGraph(data);
+    searchTrack();
 }
 
 function reset() {
-    if(!confirm("you sure?\nIt doesnt work yet:/"))
+    if(!confirm("Are you sure you would like to reset all current selections?"))
         return;
-    console.log("reset")
+    data = originalData;
     reset_parallel();
+    resetTimeBrush();
 }
 
-// Export data
 function export_csv() {
-    console.log(actives())
+    if(!confirm('Are you sure you would like to download a csv with ' + activeData.length + ' rows?'))
+        return;
+
+    var csvContent = '';
+    // headers
+    csvContent += Object.keys(activeData[0]).join(',') + '\n';
+    // data
+    activeData.forEach(function(item) {
+        csvContent += Object.values(item).join(',') + '\n';
+    });
+
+    var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement("a");
+    var url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "exported.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
+
 
 function preprocess(d) {
     // Create an object to keep track of unique tracks
@@ -74,6 +96,7 @@ d3.csv("../data/spotify_songs.csv", function(d) {
 }, function(error, d) {
     if (error) throw error;
     d = preprocess(d);
+    originalData = d;
     data = d;
     activeData = d;
     drawParallelCoordinates(data);

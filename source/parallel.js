@@ -181,7 +181,7 @@ drawParallelCoordinates = function (data) {
         .text("Drag or resize this filter");
 
 
-    legend = create_legend(genre_colors, brush);
+    legend = create_legend(genre_colors);
 
     // Render full foreground
     brush();
@@ -208,7 +208,7 @@ drawParallelCoordinates = function (data) {
 //     return pixels;
 // };
 
-function create_legend(genre_colors, brush) {
+function create_legend(genre_colors) {
     // create legend
     var legend_data = d3.select("#legend")
         .html("")
@@ -218,19 +218,20 @@ function create_legend(genre_colors, brush) {
     // filter by playlist_genre
     var legend = legend_data
         .enter().append("div")
-        .attr("title", "Hide playlist_genre")
+        .attr("title", "Hide playlist genre")
         .on("click", function (d) {
             // toggle playlist_genre
             if (_.contains(excluded_playlist_genres, d)) {
-                d3.select(this).attr("title", "Hide playlist_genre")
+                d3.select(this).attr("title", "Hide playlist genre")
                 excluded_playlist_genres = _.difference(excluded_playlist_genres, [d]);
-                brush();
                 updateData();
+                brush();
             } else {
-                d3.select(this).attr("title", "Show playlist_genre")
+                d3.select(this).attr("title", "Show playlist genre")
                 excluded_playlist_genres.push(d);
-                brush();
                 updateData();
+                brush();
+
             }
         });
 
@@ -548,7 +549,9 @@ function update_ticks(d, extent) {
         // all ticks
         d3.selectAll(".brush")
             .each(function (d) {
-                d3.select(this).call(yscale[d].brush = d3.svg.brush().y(yscale[d]).on("brush", brush));
+                if(yscale[d]) {
+                    d3.select(this).call(yscale[d].brush = d3.svg.brush().y(yscale[d]).on("brush", brush));
+                }
             })
     }
 
@@ -691,24 +694,26 @@ window.onresize = function () {
 
 // Remove all but selected from the dataset
 function keep_data() {
-    new_data = actives();
+    new_data = activeData;
     if (new_data.length == 0) {
         alert("I don't mean to be rude, but I can't let you remove all the data.\n\nTry removing some brushes to get your data back. Then click 'Keep' when you've selected data you want to look closer at.");
         return false;
     }
     data = new_data;
     rescale();
+    brush();
 }
 
 // Exclude selected from the dataset
 function exclude_data() {
-    new_data = _.difference(data, actives());
+    new_data = _.difference(data, activeData);
     if (new_data.length == 0) {
         alert("I don't mean to be rude, but I can't let you remove all the data.\n\nTry selecting just a few data points then clicking 'Exclude'.");
         return false;
     }
     data = new_data;
     rescale();
+    brush();
 }
 
 function remove_axis(d, g) {
@@ -726,13 +731,16 @@ function remove_axis(d, g) {
 function reset_parallel(){
     dimensions = originalDimensions;
     xscale.domain(dimensions);
-    // g.attr("transform", function (p) {
-    //     return "translate(" + position(p) + ")";
-    // });
-    // g.filter(function (p) {
-    //     return p == d;
-    // }).remove();
-    update_ticks();
+    d3.selectAll(".brush")
+        .each(function (d) {
+            if(yscale[d]) {
+                d3.select(this).call(yscale[d].brush.clear());
+            }
+        });
+    rescale();
+    //update_ticks();
+    updateData();
+    brush();
 }
 
 d3.select("#keep-data").on("click", keep_data);
