@@ -5,7 +5,8 @@ var selectedStreamGraphDimension = "track_popularity"
 // set the dimensions and margins of the graph
 var margin = {top: 20, right: 30, bottom: 0, left: 10},
     streamWidth = streamDiv.clientWidth - 40,
-    streamHeight =  d3.max([document.body.clientHeight-540, 240]);;
+    streamHeight = d3.max([document.body.clientHeight - 540, 240]);
+;
 
 // append the stream_svg object to the body of the page
 var stream_svg = d3.select("#stream_graph")
@@ -29,7 +30,7 @@ var Tooltip = d3.select("body")
 
 
 const drawStreamGraph = function (data) {
-    if(data == null || data.length <= 0)
+    if (data == null || data.length <= 0)
         return;
 
 
@@ -39,28 +40,36 @@ const drawStreamGraph = function (data) {
 
     // Group data by genre and track_album_release_date
     var nestedData = d3.nest()
-        .key(function(d) { return d.playlist_genre; })  // Group data by genre
-        .key(function(d) { return new Date(d.track_album_release_date).getFullYear(); })  // Then group by year
-        .rollup(function(v) {
+        .key(function (d) {
+            return d.playlist_genre;
+        })  // Group data by genre
+        .key(function (d) {
+            return new Date(d.track_album_release_date).getFullYear();
+        })  // Then group by year
+        .rollup(function (v) {
             // For each unique genre and year combination, sum the track_popularity
-            return d3.mean(v, function(d) { return d[selectedStreamGraphDimension]; });
+            return d3.mean(v, function (d) {
+                return d[selectedStreamGraphDimension];
+            });
         })
         .entries(data);
 
-    if(debug){
+    if (debug) {
         console.log("nestedData")
         console.log(nestedData)
     }
 
 // Transform the nested data into a suitable format for d3.layout.stack()
-    var dataPerYear = nestedData.reduce(function(acc, d) {
-        d.values.forEach(function(v) {
-            var existing = acc.find(function(e) { return e.x === +v.key; });
+    var dataPerYear = nestedData.reduce(function (acc, d) {
+        d.values.forEach(function (v) {
+            var existing = acc.find(function (e) {
+                return e.x === +v.key;
+            });
             if (existing) {
                 existing[d.key] = v.values;
             } else {
                 var newObj = {x: +v.key};
-                Object.keys(genre_colors).forEach(function(genre) {
+                Object.keys(genre_colors).forEach(function (genre) {
                     newObj[genre] = genre === d.key ? v.values : 0;
                 });
                 acc.push(newObj);
@@ -70,35 +79,33 @@ const drawStreamGraph = function (data) {
     }, []);
 
 
-    dataPerYear.sort(function(a, b) {
+    dataPerYear.sort(function (a, b) {
         return a.x - b.x;
     });
 
-    if(normalizeStreamData) {
+    if (normalizeStreamData) {
         var totalsPerYear = {};
-        dataPerYear.forEach(function(d) {
+        dataPerYear.forEach(function (d) {
             var total = 0;
-            Object.keys(genre_colors).forEach(function(genre) {
+            Object.keys(genre_colors).forEach(function (genre) {
                 total += d[genre];
             });
             totalsPerYear[d.x] = total;
         });
-        dataPerYear.forEach(function(d) {
-            Object.keys(genre_colors).forEach(function(genre) {
+        dataPerYear.forEach(function (d) {
+            Object.keys(genre_colors).forEach(function (genre) {
                 d[genre] = d[genre] / totalsPerYear[d.x];
             });
         });
     }
 
-
-
-    if(debug){
+    if (debug) {
         console.log("dataPerYear")
         console.log(dataPerYear)
     }
 
     // Calculate the maximum total track_popularity across all genres for any given year
-    var maxPopularity = d3.max(dataPerYear, function(d) {
+    var maxPopularity = d3.max(dataPerYear, function (d) {
         var total = 0;
         for (var genre in genre_colors) {
             total += d[genre] || 0;
@@ -112,8 +119,8 @@ const drawStreamGraph = function (data) {
 
 // Here's how you can prepare your data for d3.layout.stack()
     const keys = Object.keys(genre_colors);
-    var layers = keys.map(function(key, i) {
-        var layer = dataPerYear.map(function(d) {
+    var layers = keys.map(function (key, i) {
+        var layer = dataPerYear.map(function (d) {
             return {x: d.x, y: d[key] || 0};
         });
         layer.key = key;  // Add the key to the layer
@@ -121,40 +128,41 @@ const drawStreamGraph = function (data) {
     });
 
     var stackedData = stack(layers);
-    if(debug){
+    if (debug) {
         console.log("stackedData");
         console.log(stackedData);
     }
 
 // Define the x, y, and color scales
     var x = d3.scale.linear()
-        .domain(d3.extent(data, function(d) { return new Date(d.track_album_release_date).getFullYear(); }))
+        .domain(d3.extent(data, function (d) {
+            return new Date(d.track_album_release_date).getFullYear();
+        }))
         .range([0, streamWidth]);
     var y = d3.scale.linear()
         .domain([0, maxPopularity])
         .range([streamHeight * .78, streamHeight * .02]);
 
-    var mouseover = function(d) {
+    var mouseover = function (d) {
         Tooltip.style("opacity", 1)
         d3.selectAll(".myArea").style("opacity", .2)
         d3.select(this)
             .style("stroke", "black")
             .style("opacity", 1)
     }
-    var mousemove = function(d,i) {
+    var mousemove = function (d, i) {
         grp = keys[i]
         Tooltip.text(grp)
     }
-    var mouseleave = function(d) {
+    var mouseleave = function (d) {
         Tooltip.style("opacity", 0)
         d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
     }
 
 
-
     stream_svg.append("g")
-        .attr("transform", "translate(0," + streamHeight*0.8 + ")")
-        .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight*.8).ticks(5))
+        .attr("transform", "translate(0," + streamHeight * 0.8 + ")")
+        .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight * .8).ticks(5))
         .select(".domain").remove()
 
 
@@ -167,9 +175,15 @@ const drawStreamGraph = function (data) {
         .text("Time (year)");
 
     const area = d3.svg.area()
-        .x(function(d) { return x(d.x); })
-        .y0(function(d) { return y(d.y0); })
-        .y1(function(d) { return y(d.y0 + d.y); });
+        .x(function (d) {
+            return x(d.x);
+        })
+        .y0(function (d) {
+            return y(d.y0);
+        })
+        .y1(function (d) {
+            return y(d.y0 + d.y);
+        });
 
     stream_svg
         .selectAll("mylayers")
@@ -177,7 +191,9 @@ const drawStreamGraph = function (data) {
         .enter()
         .append("path")
         .attr("class", "myArea")
-        .style("fill", function(d) { return color(d.key); })
+        .style("fill", function (d) {
+            return color(d.key);
+        })
         .attr("d", area)
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
@@ -198,12 +214,22 @@ const drawStreamGraph = function (data) {
 
     // Define the callback function to be called when the brush is moved
     function timeBrushed() {
-        var extent = timeBrush.extent();
-        yearExtents = extent
-        brush()
-        // 'extent' is a two-element array representing the lower and upper bounds of the brush along the x-axis
-        // You can use 'extent' to determine which dates are currently selected and update your graph accordingly
+        var extent = timeBrush.extent().map(Math.round);
+
+        // Ensure the difference is at least 1
+        if (Math.abs(extent[1] - extent[0]) < 1) {
+            if (extent[0] === extent[1]) {
+                extent[1] += 1;  // Increase the upper bound by 1
+            } else {
+                extent[1] = extent[0] + 1;  // Set the upper bound to be 1 greater than the lower bound
+            }
+        }
+
+        yearExtents = extent;
+
+        brush();
     }
+
 };
 
 const resetTimeBrush = function () {
@@ -221,11 +247,11 @@ const switchStreamDimension = function (value) {
     drawStreamGraph(activeData);
 }
 
-const updateStreamGraphDropdown = function() {
+const updateStreamGraphDropdown = function () {
     var select = document.getElementById("selectStreamGraphDimension");
     select.innerHTML = '';
 
-    for(var i = 0; i < dimensions.length; i++) {
+    for (var i = 0; i < dimensions.length; i++) {
         var opt = dimensions[i];
         var el = document.createElement("option");
         el.textContent = opt;
@@ -233,7 +259,7 @@ const updateStreamGraphDropdown = function() {
         select.appendChild(el);
     }
 
-    if(dimensions.includes(selectedStreamGraphDimension))
+    if (dimensions.includes(selectedStreamGraphDimension))
         select.value = selectedStreamGraphDimension;
     else
         select.value = dimensions[0];
