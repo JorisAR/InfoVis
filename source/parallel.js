@@ -444,15 +444,7 @@ function brush() {
                 return extents[dimension][0] <= d[p] && d[p] <= extents[dimension][1];
             }) ? selected.push(d) : null;
         });
-
-    // free text search
-    // todo remove this :)
-    // var query = d3.select("#searchTrackName")[0][0].value;
-    // //var query = d3.select("#searchArtist")[0][0].value;
-    // if (query.length > 0) {
-    //     selected = search(selected, query);
-    // }
-
+    
     if (selected.length < data.length && selected.length > 0) {
         d3.select("#keep-data").attr("disabled", null);
         d3.select("#exclude-data").attr("disabled", null);
@@ -612,37 +604,6 @@ function rescale() {
     paths(data, foreground, brush_count);
 }
 
-//todo remove this bad code >:(
-// // Get polylines within extents
-// function actives() {
-//     var actives = dimensions.filter(function (p) {
-//             return !yscale[p].brush.empty();
-//         }),
-//         extents = actives.map(function (p) {
-//             return yscale[p].brush.extent();
-//         });
-//
-//     // filter extents and excluded playlist_genres
-//     var selected = [];
-//     data
-//         .filter(function (d) {
-//             return !_.contains(excluded_playlist_genres, d.playlist_genre);
-//         })
-//         .map(function (d) {
-//             return actives.every(function (p, i) {
-//                 return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-//             }) ? selected.push(d) : null;
-//         });
-//
-//     // free text search
-//     var query = d3.select("#search")[0][0].value;
-//     if (query > 0) {
-//         selected = search(selected, query);
-//     }
-//     return selected;
-// }
-
-
 // scale to window size
 window.onresize = function () {
     parallelWidth = parallelDiv.clientWidth - 10;
@@ -737,6 +698,7 @@ function reset_parallel(){
                 d3.select(this).call(yscale[d].brush.clear());
             }
         });
+    excluded_playlist_genres = [];
     rescale();
     //update_ticks();
     updateData();
