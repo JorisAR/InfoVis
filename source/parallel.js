@@ -5,7 +5,7 @@ let parallelHeight = parallelDiv.clientHeight * .85;
 
 let searchedData;
 let yearExtents, originalYearExtents;
-var m = [10, 10, 10, 10],
+var m = [60, 10, 10, 10],
     w = parallelWidth - m[1] - m[3],
     h = parallelHeight - m[0] - m[2],
     xscale = d3.scale.ordinal().rangePoints([0, w], 1),
@@ -330,7 +330,7 @@ function invert_axis(d) {
     if (!yscale[d].brush.empty()) {
         var extent = yscale[d].brush.extent();
     }
-    if (yscale[d].inverted == true) {
+    if (yscale[d].inverted) {
         yscale[d].range([h, 0]);
         d3.selectAll('.label')
             .filter(function (p) {
@@ -360,9 +360,9 @@ function path(d, ctx, color) {
     dimensions.map(function (p, i) {
         var x = xscale(p),
             y = yscale[p](d[p]);
-        var cp1x = x - 0.88 * (x - x0);
+        var cp1x = x - (x - x0);
         var cp1y = y0;
-        var cp2x = x - 0.12 * (x - x0);
+        var cp2x = x - .05 * (x - x0);
         var cp2y = y;
         ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
         x0 = x;

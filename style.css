@@ -81,6 +81,13 @@ canvas, svg {
   padding-bottom: 24px;
 }
 
+.radar_axis text {
+  fill: #111;
+  text-anchor: middle;
+  font-size: 11px;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
 .quarter, .third, .half {
   float: left;
 }
@@ -259,6 +266,7 @@ button#exclude-data:hover {
 .radar-chart.focus .area.focused {
   fill-opacity: 0.9;
 }
+
 #container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

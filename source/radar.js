@@ -72,20 +72,22 @@ var RadarChart = {
 
         function setTooltip(tooltip, msg) {
             if (msg === false || msg == undefined) {
-                tooltip.classed("visible", 0);
-                tooltip.select("rect").classed("visible", 0);
+                tooltip.style("display", "none");
+                tooltip.classed("visible", false);
+                tooltip.select("rect").classed("visible", false);
             } else {
-                tooltip.classed("visible", 1);
+                tooltip.classed("visible", true);
+                tooltip.style("display", "block");
 
                 var container = tooltip.node().parentNode;
                 var coords = d3.mouse(container);
 
-                tooltip.select("text").classed('visible', 1).style("fill", cfg.tooltipColor);
+                tooltip.select("text").classed('visible', true).style("fill", cfg.tooltipColor);
                 var padding = 5;
                 var bbox = tooltip.select("text").text(msg).node().getBBox();
 
                 tooltip.select("rect")
-                    .classed('visible', 1).attr("x", 0)
+                    .classed('visible', true).attr("x", 0)
                     .attr("x", bbox.x - padding)
                     .attr("y", bbox.y - padding)
                     .attr("width", bbox.width + (padding * 2))
@@ -95,6 +97,7 @@ var RadarChart = {
                 tooltip.attr("transform", "translate(" + (coords[0] + 10) + "," + (coords[1] - 10) + ")")
             }
         }
+
 
         function radar(selection) {
             selection.each(function (data) {
@@ -235,56 +238,7 @@ var RadarChart = {
                             return 'translate(' + (cfg.radar_w / 2 - levelFactor) + ', ' + (cfg.radar_h / 2 - levelFactor) + ')';
                         });
                 }
-                if (cfg.radar_axisLine || cfg.radar_axisText) {
-                    var radar_axis = container.selectAll('.radar_axis').data(allradar_axis);
 
-                    var newradar_axis = radar_axis.enter().append('g');
-                    if (cfg.radar_axisLine) {
-                        newradar_axis.append('line');
-                    }
-                    if (cfg.radar_axisText) {
-                        newradar_axis.append('text');
-                    }
-
-                    radar_axis.exit().remove();
-
-                    radar_axis.attr('class', 'radar_axis');
-
-                    if (cfg.radar_axisLine) {
-                        radar_axis.select('line')
-                            .attr('x1', cfg.radar_w / 2)
-                            .attr('y1', cfg.radar_h / 2)
-                            .attr('x2', function (d, i) {
-                                return (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, cfg.factor);
-                            })
-                            .attr('y2', function (d, i) {
-                                return (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, cfg.factor);
-                            });
-                    }
-
-                    if (cfg.radar_axisText) {
-                        radar_axis.select('text')
-                            .attr('class', function (d, i) {
-                                var p = getHorizontalPosition(i, 0.5);
-
-                                return 'legend ' +
-                                    ((p < 0.4) ? 'left' : ((p > 0.6) ? 'right' : 'middle'));
-                            })
-                            .attr('dy', function (d, i) {
-                                var p = getVerticalPosition(i, 0.5);
-                                return ((p < 0.1) ? '1em' : ((p > 0.9) ? '0' : '0.5em'));
-                            })
-                            .text(function (d) {
-                                return d.name;
-                            })
-                            .attr('x', function (d, i) {
-                                return d.xOffset + (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, cfg.factorLegend);
-                            })
-                            .attr('y', function (d, i) {
-                                return d.yOffset + (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, cfg.factorLegend);
-                            });
-                    }
-                }
 
                 // content
                 data.forEach(function (d) {
@@ -437,12 +391,65 @@ var RadarChart = {
 
                     var cg_node = circleGroups.node();
                     cg_node.parentNode.appendChild(cg_node);
-
-                    // ensure tooltip is upmost layer
-                    var tooltipEl = tooltip.node();
-                    tooltipEl.parentNode.appendChild(tooltipEl);
                 }
+
+                if (cfg.radar_axisLine || cfg.radar_axisText) {
+                    var radar_axis = container.selectAll('.radar_axis').data(allradar_axis);
+
+                    var newradar_axis = radar_axis.enter().append('g');
+                    if (cfg.radar_axisLine) {
+                        newradar_axis.append('line');
+                    }
+                    if (cfg.radar_axisText) {
+                        newradar_axis.append('text');
+                    }
+
+                    radar_axis.exit().remove();
+
+                    radar_axis.attr('class', 'radar_axis');
+
+                    if (cfg.radar_axisLine) {
+                        radar_axis.select('line')
+                            .attr('x1', cfg.radar_w / 2)
+                            .attr('y1', cfg.radar_h / 2)
+                            .attr('x2', function (d, i) {
+                                return (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, cfg.factor);
+                            })
+                            .attr('y2', function (d, i) {
+                                return (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, cfg.factor);
+                            });
+                    }
+
+                    if (cfg.radar_axisText) {
+                        radar_axis.select('text')
+                            .attr('class', function (d, i) {
+                                var p = getHorizontalPosition(i, 0.5);
+
+                                return 'legend ' +
+                                    ((p < 0.4) ? 'left' : ((p > 0.6) ? 'right' : 'middle'));
+                            })
+                            .attr('dy', function (d, i) {
+                                var p = getVerticalPosition(i, 0.5);
+                                return ((p < 0.1) ? '1em' : ((p > 0.9) ? '0' : '0.5em'));
+                            })
+                            .text(function (d) {
+                                return d.name;
+                            })
+                            .attr('x', function (d, i) {
+                                return d.xOffset + (cfg.radar_w / 2 - radius2) + getHorizontalPosition(i, radius2, cfg.factorLegend);
+                            })
+                            .attr('y', function (d, i) {
+                                return d.yOffset + (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, cfg.factorLegend);
+                            });
+                    }
+                }
+
+                // ensure tooltip is upmost layer
+                var tooltipEl = tooltip.node();
+                tooltipEl.parentNode.appendChild(tooltipEl);
             });
+
+
         }
 
         radar.config = function (value) {
