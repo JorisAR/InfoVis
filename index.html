@@ -15,13 +15,12 @@
     <button title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
     <button title="Export data as CSV" id="export-data">Export</button>
     <button title="Reset" id="reset" onclick="reset()">Reset</button>
-
-    <button title="Toggle normalize temporal data" onclick="toggleNormalization()">Toggle normalize temporal data
-    </button>
+    <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
+    <button title="Toggle Stream Graph Normalization" onclick="toggleNormalization()">Toggle Stream Graph Normalization</button>
     <button title="Toggle stream graph aggregation mode" id="stream-graph-aggregation-mode-toggle"
             onclick="toggleStreamAggregationMode()">Stream Graph Mode: average
     </button>
-    <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
+
 
     <div class="controls">
         <strong id="rendered-count"></strong>/<strong id="selected-count"></strong>
@@ -68,14 +67,19 @@
 
 
     <div class="grid_cell" id="parallel_chart">
+
         <canvas id="background"></canvas>
         <canvas id="foreground"></canvas>
         <canvas id="highlight"></canvas>
         <svg></svg>
+        <h3>Parallel Coordinates</h3>
     </div>
 
-    <div class="grid_cell" id="radar-container"></div>
+    <div class="grid_cell" id="radar-container">
+        <h3>Stacked Radar Plot</h3>
+    </div>
     <div class="grid_cell" id="stream_graph">
+        <h3>StreamGraph</h3>
         <select id="selectStreamGraphDimension" onchange="switchStreamDimension(this.value);"
                 style="position: absolute; z-index: 1;">
             <option>Choose</option>

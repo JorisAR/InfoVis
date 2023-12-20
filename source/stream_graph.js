@@ -3,7 +3,7 @@ let selectedStreamGraphDimension = "track_popularity"
 const streamDiv = document.getElementById("stream_graph");
 
 // Set the dimensions and margins of the graph
-const margin = {top: 10, right: 10, bottom: 10, left: 10},
+const margin = {top: 0, right: 0, bottom: 0, left: 0},
     streamWidth = streamDiv.clientWidth * .96 - margin.right - margin.left,
     streamHeight = streamDiv.clientHeight * .96 - margin.top - margin.bottom;
 
@@ -144,24 +144,13 @@ const drawStreamGraph = function (data) {
         .domain(d3.extent(data, function (d) {
             return new Date(d.track_album_release_date).getFullYear();
         }))
-        .range([0, streamWidth]);
+        .range([streamWidth * .02, streamWidth * 0.98]);
     const y = d3.scale.linear()
         .domain([0, maxPopularity])
         .range([streamHeight * .78, streamHeight * .02]);
 
-    stream_svg.append("g")
-        .attr("transform", "translate(0," + streamHeight * 0.8 + ")")
-        .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight * .8).ticks(5))
-        .select(".domain").remove()
 
 
-    stream_svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
-
-    stream_svg.append("text")
-        .attr("text-anchor", "end")
-        .attr("x", streamWidth)
-        .attr("y", streamHeight * .9)
-        .text("Time (year)");
 
     const area = d3.svg.area()
         .x(function (d) {
@@ -194,6 +183,26 @@ const drawStreamGraph = function (data) {
         .call(timeBrush)
         .selectAll("rect")
         .attr("height", streamHeight);
+
+    const yAxis = stream_svg.append("g")
+        .attr("transform", "translate(" + streamWidth * 0.98 + ",0)")
+        .call(d3.svg.axis().scale(y).orient("left").ticks(5));
+    yAxis.select(".domain").remove();
+    yAxis.selectAll(".tick text").classed("axis_label", true);
+
+
+    stream_svg.append("g")
+        .attr("transform", "translate(0," + streamHeight * 0.8 + ")")
+        .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight * .8).ticks(5))
+        .select(".domain").remove()
+
+    stream_svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
+
+    stream_svg.append("text")
+        .attr("text-anchor", "end")
+        .attr("x", streamWidth * .98)
+        .attr("y", streamHeight * .9)
+        .text("Time (year)");
 
     // Define the callback function to be called when the brush is moved
     function timeBrushed() {

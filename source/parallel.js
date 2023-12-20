@@ -275,7 +275,7 @@ function data_table(sample) {
         .append("span")
         .attr("class", "color-block")
         .style("background", function (d) {
-            return color(d.playlist_genre, 0.85)
+            return color(d.playlist_genre, 1)
         })
 
     table

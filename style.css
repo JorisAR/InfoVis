@@ -84,9 +84,17 @@ canvas, svg {
 .radar_axis text {
   fill: #111;
   text-anchor: middle;
-  font-size: 11px;
+  font-size: 12px;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
+
+.axis_label {
+  fill: #111;
+  text-anchor: middle;
+  font-size: 15px;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
 
 .quarter, .third, .half {
   float: left;
@@ -267,12 +275,6 @@ button#exclude-data:hover {
   fill-opacity: 0.9;
 }
 
-#container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-}
-
 
 #grid-container {
   width: 100%;
@@ -295,17 +297,21 @@ button#exclude-data:hover {
 
 #landing_page {
   grid-column: 1 / span 2;
-  grid-row: 1 / span 4;
+  grid-row: 1 / span 3;
+}
+
+#genre-list {
+  color: black;
 }
 
 #genre-selector {
   grid-column: 1 / span 1;
-  grid-row: 5 / span 2;
+  grid-row: 4 / span 3;
 }
 
 #track-finder {
   grid-column: 2 / span 1;
-  grid-row: 5 / span 2;
+  grid-row: 4 / span 3;
 }
 
 #parallel_chart {

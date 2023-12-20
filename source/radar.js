@@ -37,8 +37,8 @@ var radarDiv = document.getElementById('radar-container');
 var RadarChart = {
     defaultConfig: {
         containerClass: 'radar-chart',
-        radar_w: radarDiv.clientWidth * 0.85,
-        radar_h: radarDiv.clientHeight * 0.85,
+        radar_w: radarDiv.clientWidth * 0.90,
+        radar_h: radarDiv.clientHeight * 0.90,
         factor: 0.95,
         factorLegend: 1,
         levels: 3,
@@ -145,7 +145,7 @@ var RadarChart = {
                 //var allradar_axis = data[0].axes.map(function(i, j){ return {name: i.radar_axis, xOffset: (i.xOffset)?i.xOffset:0, yOffset: (i.yOffset)?i.yOffset:0}; });
                 var total = allradar_axis.length;
                 var radius = cfg.factor * Math.min(cfg.radar_w / 2, cfg.radar_h / 2);
-                var radius2 = Math.min(cfg.radar_w / 2, cfg.radar_h / 2);
+                var radius2 = Math.min(cfg.radar_w / 2, cfg.radar_h / 2) * .95;
 
                 container.classed(cfg.containerClass, 1);
 
@@ -239,10 +239,10 @@ var RadarChart = {
                         });
                 }
 
-
-                // content
                 data.forEach(function (d) {
                     d.axes.forEach(function (radar_axis, i) {
+                        //get avg value in originalData at column: dimensions[i]
+
                         // console.log(radar_axis)
                         var radar_axisMaxValue = allradar_axis[i].maxValue - cfg.minValue;
                         var radar_axisMinValue = allradar_axis[i].minValue - cfg.minValue;
@@ -256,7 +256,6 @@ var RadarChart = {
                         radar_axis.y = (cfg.radar_h / 2 - radius2) + getVerticalPosition(i, radius2, normalizedValue * cfg.factor);
                     });
                 });
-
 
                 var polygon = container.selectAll(".area").data(data, cfg.radar_axisJoin);
 
