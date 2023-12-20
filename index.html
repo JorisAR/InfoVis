@@ -10,13 +10,15 @@
 <body>
 
 <div id="header">
-    <h1>Song Explorer</h1>
+    <h1>Spotify Song Explorer</h1>
     <button title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
     <button title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
     <button title="Export data as CSV" id="export-data">Export</button>
     <button title="Reset" id="reset" onclick="reset()">Reset</button>
     <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
-    <button title="Toggle Stream Graph Normalization" onclick="toggleNormalization()">Toggle Stream Graph Normalization</button>
+    <button title="Toggle Stream Graph Normalization" onclick="toggleNormalization()">Toggle Stream Graph
+        Normalization
+    </button>
     <button title="Toggle stream graph aggregation mode" id="stream-graph-aggregation-mode-toggle"
             onclick="toggleStreamAggregationMode()">Stream Graph Mode: average
     </button>
@@ -41,26 +43,41 @@
 </div>
 <div id="grid-container">
     <div class="grid_cell" id="landing_page">
+        <div>
+            <h2>
+                Welcome to this InfoVis dashboard!
+            </h2>
+            This tool visualizes nearly 30000 spotify songs grouped by genre.
+            Each song is visualized in the parallel coordinates graph as a line. By dragging on the axis, you can filter
+            songs. You can also drag the axis to reorder them. All filters in the parallel coordinates plot affect the other plots.<br>
+            In the genre selector, you can see how songs per genres are in the currently considered dataset, and by clicking
+            on each bar you can exclude or include them.<br>
+            In the stream graph, you can judge trends of certain song characteristics over time. By dragging you can select a certain timeframe to consider, which also affects other plots.<br>
+            Finally, all changes are displayed in the radar plot, which allows you to compare genres with each other.
+        </div>
+
+
+
         <h3>
-            Welcome to the InfoVis project: Song Explorer!
+            Created by: Qinxin Ren, Joris Rijsdijk and Ravi Snellenberg for IN4089@TUDelft
         </h3>
-        Created by: Qinxin Ren, Joris Rijsdijk and Ravi Snellenberg
+
     </div>
     <div class="grid_cell" id="genre-selector">
         <small>
             <!--Last rendered <strong id="render-speed"></strong> lines-->
         </small>
         <h3>Genre Selector</h3>
-        Click any of the genres to disable/enable them.
+        Click any of the genres to include or exclude them.
         <p id="legend">
         </p>
     </div>
 
     <div class="grid_cell" id="track-finder">
-        <h3>Sample of 5 songs
-            <input type="text" id="searchArtist" placeholder="Search artist..."></input>
-            <input type="text" id="searchTrackName" placeholder="Search track name..."></input>
-        </h3>
+        <h3>Sample of 5 songs</h3>
+        <input type="text" id="searchArtist" placeholder="Search artist..."></input><br/>
+        <input type="text" id="searchTrackName" placeholder="Search track name..."></input>
+
         <p id="genre-list">
         </p>
     </div>

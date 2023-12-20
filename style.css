@@ -11,9 +11,10 @@ body {
   background: #ffffff;
   color: #404040;
 }
+
 body.dark {
   background: #131313;
-  color: #e3e3e3;
+  color: #f3f3f3;
 }
 a {
   text-decoration: none;
@@ -181,11 +182,11 @@ button#exclude-data:hover {
   font-weight: bold;
 }
 #rendered-bar {
-  background: #888;
+  background: #ffffff;
   border-right: 1px solid #666;
 }
 #selected-bar {
-  background: rgba(160,160,160,0.5);
+  background: rgba(199, 199, 199, 0.5);
   border-right: 1px solid #999;
 }
 .fillbar {
@@ -201,21 +202,25 @@ button#exclude-data:hover {
 }
 #header {
   border-bottom: 1px solid rgba(100,100,100,0.35);
-  background: #ffffff;
+  color: white;
+  background: #191414;
   padding: 6px 24px 4px;
   line-height: 24px;
 }
+
 .dark #header {
   background: #040404;
   color: #f3f3f3;
 }
 #header h1 {
+  color: #1DB954;
   display: inline-block;
   margin: 0px 14px 0 0;
 }
 #header button {
+  font-weight: bold;
   vertical-align: top;
-  background-color: #bdbdbd; /* Gray background */
+  background-color: #ffffff; /* Gray background */
   border: none; /* Remove borders */
   color: black; /* White text */
   padding: 2px 5px; /* Smaller padding */
@@ -231,8 +236,8 @@ button#exclude-data:hover {
 }
 
 #header button:hover {
-  background-color: #696969; /* Darker gray background on hover */
-  color: white; /* White text on hover */
+  background-color:  #1DB954; /* Darker gray background on hover */
+  /*color: white; !* White text on hover *!*/
 }
 
 .controls {
@@ -281,8 +286,8 @@ button#exclude-data:hover {
   height: 98%;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(10, 9.35%);
-  grid-template-rows: repeat(10, 9.35%);
+  grid-template-columns: repeat(18, 5%);
+  grid-template-rows: repeat(18, 5%);
   grid-gap: .5%;
   padding: .5%;
   background-color: #ccc3c3;
@@ -296,37 +301,44 @@ button#exclude-data:hover {
 }
 
 #landing_page {
-  grid-column: 1 / span 2;
-  grid-row: 1 / span 3;
+  overflow: auto;
+  grid-column: 1 / span 6;
+  grid-row: 1 / span 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 #genre-list {
+  overflow: auto;
   color: black;
+  font-size: 10px;
 }
 
 #genre-selector {
-  grid-column: 1 / span 1;
-  grid-row: 4 / span 3;
+  overflow: auto;
+  grid-column: 1 / span 3;
+  grid-row: 6 / span 5;
 }
 
 #track-finder {
-  grid-column: 2 / span 1;
-  grid-row: 4 / span 3;
+  grid-column: 4 / span 3;
+  grid-row: 6 / span 5;
 }
 
 #parallel_chart {
-  grid-column: 3 / span 8;
-  grid-row: 1 / span 6;
+  grid-column: 7 / span 13;
+  grid-row: 1 / span 10;
 }
 
 #radar-container {
-  grid-column: 1 / span 2;
-  grid-row: 7 / span 4;
+  grid-column: 1 / span 6;
+  grid-row: 11 / span 8;
 }
 
 #stream_graph {
-  grid-column: 3 / span 8;
-  grid-row: 7 / span 4;
+  grid-column: 7 / span 13;
+  grid-row: 11 / span 8;
 }
 
 svg, canvas {

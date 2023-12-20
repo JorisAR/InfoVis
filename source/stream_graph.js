@@ -201,7 +201,7 @@ const drawStreamGraph = function (data) {
     stream_svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", streamWidth * .98)
-        .attr("y", streamHeight * .9)
+        .attr("y", streamHeight * .85)
         .text("Time (year)");
 
     // Define the callback function to be called when the brush is moved
@@ -221,6 +221,8 @@ const drawStreamGraph = function (data) {
 };
 
 const resetTimeBrush = function () {
+    if(yearExtents === originalYearExtents)
+        return;
     yearExtents = originalYearExtents;
     brush()
 }
