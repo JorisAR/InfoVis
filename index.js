@@ -83,7 +83,7 @@ function preprocess(d) {
 /**
  * Load data for the first time.
  */
-d3.csv("../data/spotify_songs.csv", function(d) {
+d3.csv("data/spotify_songs.csv", function(d) {
     // Convert quantitative scales to floats
     for (var k in d) {
         if (!isNaN(d[k] - 0) && k != 'id') {
