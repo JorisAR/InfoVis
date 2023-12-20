@@ -1,18 +1,17 @@
-var streamDiv = document.getElementById('stream_graph');
-var normalizeStreamData = false
-var selectedStreamGraphDimension = "track_popularity"
+let normalizeStreamData = false
+let selectedStreamGraphDimension = "track_popularity"
+const streamDiv = document.getElementById("stream_graph");
 
-// set the dimensions and margins of the graph
-var margin = {top: 20, right: 30, bottom: 0, left: 10},
-    streamWidth = streamDiv.clientWidth - 40,
-    streamHeight = d3.max([document.body.clientHeight - 540, 240]);
-;
+// Set the dimensions and margins of the graph
+const margin = {top: 10, right: 10, bottom: 10, left: 10},
+    streamWidth = streamDiv.clientWidth * .96 - margin.right - margin.left,
+    streamHeight = streamDiv.clientHeight * .96 - margin.top - margin.bottom;
 
-// append the stream_svg object to the body of the page
-var stream_svg = d3.select("#stream_graph")
+// Append the stream_svg object to the body of the page
+let stream_svg = d3.select("#stream_graph")
     .append("svg")
-    .attr("width", streamWidth + margin.left + margin.right)
-    .attr("height", streamHeight + margin.top + margin.bottom)
+    .attr("width", streamWidth)
+    .attr("height", streamHeight)
     .append("g")
     .attr("transform",
         "translate(" + margin.left + "," + margin.top + ")");
@@ -48,9 +47,17 @@ const drawStreamGraph = function (data) {
         })  // Then group by year
         .rollup(function (v) {
             // For each unique genre and year combination, sum the track_popularity
-            return d3.mean(v, function (d) {
-                return d[selectedStreamGraphDimension];
-            });
+            switch (streamAggregationMode) {
+                case "avg":
+                    return d3.mean(v, function (d) {
+                        return d[selectedStreamGraphDimension];
+                    });
+                case "sum":
+                    return d3.sum(v, function (d) {
+                        return d[selectedStreamGraphDimension];
+                    });
+            }
+
         })
         .entries(data);
 
@@ -105,8 +112,8 @@ const drawStreamGraph = function (data) {
     }
 
     // Calculate the maximum total track_popularity across all genres for any given year
-    var maxPopularity = d3.max(dataPerYear, function (d) {
-        var total = 0;
+    const maxPopularity = d3.max(dataPerYear, function (d) {
+        let total = 0;
         for (var genre in genre_colors) {
             total += d[genre] || 0;
         }
@@ -114,51 +121,33 @@ const drawStreamGraph = function (data) {
     });
 
 // In D3 v3, we use d3.layout.stack()
-    var stack = d3.layout.stack()
+    const stack = d3.layout.stack()
         .offset("zero");
 
 // Here's how you can prepare your data for d3.layout.stack()
     const keys = Object.keys(genre_colors);
-    var layers = keys.map(function (key, i) {
-        var layer = dataPerYear.map(function (d) {
+    const layers = keys.map(function (key, i) {
+        const layer = dataPerYear.map(function (d) {
             return {x: d.x, y: d[key] || 0};
         });
         layer.key = key;  // Add the key to the layer
         return layer;
     });
 
-    var stackedData = stack(layers);
+    const stackedData = stack(layers);
     if (debug) {
         console.log("stackedData");
         console.log(stackedData);
     }
 
-// Define the x, y, and color scales
-    var x = d3.scale.linear()
+    const x = d3.scale.linear()
         .domain(d3.extent(data, function (d) {
             return new Date(d.track_album_release_date).getFullYear();
         }))
         .range([0, streamWidth]);
-    var y = d3.scale.linear()
+    const y = d3.scale.linear()
         .domain([0, maxPopularity])
         .range([streamHeight * .78, streamHeight * .02]);
-
-    var mouseover = function (d) {
-        Tooltip.style("opacity", 1)
-        d3.selectAll(".myArea").style("opacity", .2)
-        d3.select(this)
-            .style("stroke", "black")
-            .style("opacity", 1)
-    }
-    var mousemove = function (d, i) {
-        grp = keys[i]
-        Tooltip.text(grp)
-    }
-    var mouseleave = function (d) {
-        Tooltip.style("opacity", 0)
-        d3.selectAll(".myArea").style("opacity", 1).style("stroke", "none")
-    }
-
 
     stream_svg.append("g")
         .attr("transform", "translate(0," + streamHeight * 0.8 + ")")
@@ -194,39 +183,29 @@ const drawStreamGraph = function (data) {
         .style("fill", function (d) {
             return color(d.key);
         })
-        .attr("d", area)
-        .on("mouseover", mouseover)
-        .on("mousemove", mousemove)
-        .on("mouseleave", mouseleave);
+        .attr("d", area);
 
-
-    // Create a brush
     const timeBrush = d3.svg.brush()
-        .x(x)  // Use the same scale as the x-axis
-        .on("brushend", timeBrushed);  // Specify a callback function to be called when the brush is moved
+        .x(x)
+        .on("brushend", timeBrushed);
 
-    // Append the brush to your SVG
     stream_svg.append("g")
         .attr("class", "brush")
         .call(timeBrush)
         .selectAll("rect")
-        .attr("height", streamHeight);  // Make the brush cover the full height of the graph
+        .attr("height", streamHeight);
 
     // Define the callback function to be called when the brush is moved
     function timeBrushed() {
-        var extent = timeBrush.extent().map(Math.round);
-
-        // Ensure the difference is at least 1
+        const extent = timeBrush.extent().map(Math.round);
         if (Math.abs(extent[1] - extent[0]) < 1) {
             if (extent[0] === extent[1]) {
-                extent[1] += 1;  // Increase the upper bound by 1
+                extent[1] += 1;
             } else {
-                extent[1] = extent[0] + 1;  // Set the upper bound to be 1 greater than the lower bound
+                extent[1] = extent[0] + 1;
             }
         }
-
         yearExtents = extent;
-
         brush();
     }
 
@@ -239,6 +218,23 @@ const resetTimeBrush = function () {
 
 const toggleNormalization = function () {
     normalizeStreamData = !normalizeStreamData;
+    drawStreamGraph(activeData);
+}
+
+let streamAggregationMode = "avg"
+const toggleStreamAggregationMode = function () {
+    const txt = "Stream Graph Mode: "
+    const btn = document.getElementById("stream-graph-aggregation-mode-toggle");
+    switch (streamAggregationMode){
+        case "avg":
+            streamAggregationMode = "sum"
+            btn.innerText = txt + "sum"
+            break;
+        case "sum":
+            streamAggregationMode = "avg"
+            btn.innerText = txt + "mean"
+            break;
+    }
     drawStreamGraph(activeData);
 }
 

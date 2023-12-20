@@ -1,11 +1,11 @@
-const parallelDiv = document.getElementById('chart');
+const parallelDiv = document.getElementById('parallel_chart');
 
-let parallelWidth = parallelDiv.clientWidth - 10;
-let parallelHeight = d3.max([document.body.clientHeight/2, 220]);
+let parallelWidth = parallelDiv.clientWidth * .98;
+let parallelHeight = parallelDiv.clientHeight * .85;
 
-var searchedData;
+let searchedData;
 let yearExtents, originalYearExtents;
-var m = [60, 0, 10, 0],
+var m = [10, 10, 10, 10],
     w = parallelWidth - m[1] - m[3],
     h = parallelHeight - m[0] - m[2],
     xscale = d3.scale.ordinal().rangePoints([0, w], 1),
@@ -26,7 +26,7 @@ var m = [60, 0, 10, 0],
     excludeColumns = ["key", "mode", "loudness"]; // list of columns to exclude
 
 // Scale chart and canvas height
-d3.select("#chart")
+d3.select("#parallel_chart")
     .style("height", (h + m[0] + m[2]) + "px")
 
 d3.selectAll("canvas")
@@ -109,12 +109,7 @@ drawParallelCoordinates = function (data) {
                 brush_count++;
                 this.__dragged__ = true;
 
-                // Feedback for axis deletion if dropped
-                if (dragging[d] < 12 || dragging[d] > w - 12) {
-                    d3.select(this).select(".background").style("fill", "#b00");
-                } else {
-                    d3.select(this).select(".background").style("fill", null);
-                }
+                d3.select(this).select(".background").style("fill", null);
             })
             .on("dragend", function (d) {
                 if (!this.__dragged__) {
@@ -126,11 +121,6 @@ drawParallelCoordinates = function (data) {
                     d3.select(this).transition().attr("transform", "translate(" + xscale(d) + ")");
 
                     var extent = yscale[d].brush.extent();
-                }
-
-                // remove axis if dragged all the way left
-                if (dragging[d] < 12 || dragging[d] > w - 12) {
-                    remove_axis(d, g);
                 }
 
                 // TODO required to avoid a bug
@@ -291,7 +281,7 @@ function data_table(sample) {
     table
         .append("span")
         .text(function (d) {
-            return d.track_artist + " - " + d.track_name;
+            return d.track_name + ", " + d.track_artist;
         })
 }
 
@@ -477,7 +467,7 @@ function brush() {
 
     legend.selectAll(".color-bar")
         .style("width", function (d) {
-            return Math.ceil(200 * tallies[d].length / maxLength) + "px";
+            return Math.ceil(60 * tallies[d].length / maxLength) + "%";
         });
 
     legend.selectAll(".tally")
@@ -604,55 +594,6 @@ function rescale() {
     paths(data, foreground, brush_count);
 }
 
-// scale to window size
-window.onresize = function () {
-    parallelWidth = parallelDiv.clientWidth - 10;
-    parallelHeight = d3.max([document.body.clientHeight - 540, 240]);
-
-    w = parallelWidth - m[1] - m[3],
-        h = parallelHeight - m[0] - m[2];
-
-    d3.select("#chart")
-        .style("height", (h + m[0] + m[2]) + "px")
-
-    d3.selectAll("canvas")
-        .attr("width", w)
-        .attr("height", h)
-        .style("padding", m.join("px ") + "px");
-
-    d3.select("svg")
-        .attr("width", w + m[1] + m[3])
-        .attr("height", h + m[0] + m[2])
-        .select("g")
-        .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
-
-    xscale = d3.scale.ordinal().rangePoints([0, w], 1).domain(dimensions);
-    dimensions.forEach(function (d) {
-        yscale[d].range([h, 0]);
-    });
-
-    d3.selectAll(".dimension")
-        .attr("transform", function (d) {
-            return "translate(" + xscale(d) + ")";
-        })
-    // update brush placement
-    d3.selectAll(".brush")
-        .each(function (d) {
-            d3.select(this).call(yscale[d].brush = d3.svg.brush().y(yscale[d]).on("brush", brush));
-        })
-    brush_count++;
-
-    // update axis placement
-    axis = axis.ticks(1 + parallelHeight / 50),
-        d3.selectAll(".axis")
-            .each(function (d) {
-                d3.select(this).call(axis.scale(yscale[d]));
-            });
-
-    // render data
-    brush();
-};
-
 // Remove all but selected from the dataset
 function keep_data() {
     new_data = activeData;
@@ -676,7 +617,7 @@ function exclude_data() {
     rescale();
     brush();
 }
-
+//Remove axis from the graph
 function remove_axis(d, g) {
     dimensions = _.difference(dimensions, [d]);
     xscale.domain(dimensions);

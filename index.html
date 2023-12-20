@@ -1,79 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Song Explorer</title>
-    <link rel="stylesheet" type="text/css" href="style.css">  
+    <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src="http://d3js.org/d3.v3.js"></script>
 
-  </head>
-  <body>
-    
-    <div id="header">
-      <h1>Song Explorer</h1>
-      <button title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
-      <button title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
-      <button title="Export data as CSV" id="export-data">Export</button>
-      <button title="Export data as CSV" id="reset" onclick="reset()">Reset</button>
+</head>
+<body>
 
-      <button title="Toggle normalize temporal data" onclick="toggleNormalization()">Toggle normalize temporal data</button>
-      <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
+<div id="header">
+    <h1>Song Explorer</h1>
+    <button title="Zoom in on selected data" id="keep-data" disabled="disabled">Keep</button>
+    <button title="Remove selected data" id="exclude-data" disabled="disabled">Exclude</button>
+    <button title="Export data as CSV" id="export-data">Export</button>
+    <button title="Reset" id="reset" onclick="reset()">Reset</button>
 
-      <div class="controls">
-        <strong id="rendered-count"></strong>/<strong id="selected-count"></strong><!--<strong id="data-count"></strong>-->
-        <div class="fillbar"><div id="selected-bar"><div id="rendered-bar">&nbsp;</div></div></div>
+    <button title="Toggle normalize temporal data" onclick="toggleNormalization()">Toggle normalize temporal data
+    </button>
+    <button title="Toggle stream graph aggregation mode" id="stream-graph-aggregation-mode-toggle"
+            onclick="toggleStreamAggregationMode()">Stream Graph Mode: average
+    </button>
+    <button title="Reset Time Selection" onclick="resetTimeBrush()">Reset time selection</button>
+
+    <div class="controls">
+        <strong id="rendered-count"></strong>/<strong id="selected-count"></strong>
+        <!--<strong id="data-count"></strong>-->
+        <div class="fillbar">
+            <div id="selected-bar">
+                <div id="rendered-bar">&nbsp;</div>
+            </div>
+        </div>
         Lines at <strong id="opacity"></strong> opacity.
         <span class="settings">
           <button id="hide-ticks">Hide Ticks</button>
           <button id="show-ticks" disabled="disabled">Show Ticks</button>
-          <button id="dark-theme">Dark</button>
-          <button id="light-theme" disabled="disabled">Light</button>
 
         </span>
-      </div>
-      <div style="clear:both;"></div>
     </div>
-    <div id="grid-container">
-        <div class="third" id="item1">
-          <small>
+    <div style="clear:both;"></div>
+</div>
+<div id="grid-container">
+    <div class="grid_cell" id="landing_page">
+        <h3>
+            Welcome to the InfoVis project: Song Explorer!
+        </h3>
+        Created by: Qinxin Ren, Joris Rijsdijk and Ravi Snellenberg
+    </div>
+    <div class="grid_cell" id="genre-selector">
+        <small>
             <!--Last rendered <strong id="render-speed"></strong> lines-->
-          </small>
-          <h3>Genre Groups</h3>
-          <p id="legend">
-          </p>
-        </div>
+        </small>
+        <h3>Genre Selector</h3>
+        Click any of the genres to disable/enable them.
+        <p id="legend">
+        </p>
+    </div>
 
-        <div class="third" id="item2">
-          <h3>Sample of 5 entries
+    <div class="grid_cell" id="track-finder">
+        <h3>Sample of 5 entries
             <input type="text" id="searchArtist" placeholder="Search artist..."></input>
             <input type="text" id="searchTrackName" placeholder="Search track name..."></input>
-          </h3>
-          <p id="genre-list">
-          </p>
-        </div>
-
-        <div id="chart">
-          <canvas id="background"></canvas>
-          <canvas id="foreground"></canvas>
-          <canvas id="highlight"></canvas>
-          <svg></svg>
-        </div>
-        
-        <div id="radar-container" ></div>
-        <div id="stream_graph">
-          <select id="selectStreamGraphDimension" onchange="switchStreamDimension(this.value);" style="position: absolute; z-index: 1;">
-            <option>Choose</option>
-          </select>
-        </div>
+        </h3>
+        <p id="genre-list">
+        </p>
     </div>
-    <script type="text/javascript">
-    //RadarChart.defaultConfig.levelTick = true;
-    </script>
 
-  </body>
-  <script src="https://underscorejs.org/underscore.js"></script>
-  <script src="source/config.js"></script>
-  <script src="source/parallel.js"></script>
-  <script src="source/stream_graph.js"></script>
-  <script type="text/javascript" src="source/radar.js"></script>
+
+    <div class="grid_cell" id="parallel_chart">
+        <canvas id="background"></canvas>
+        <canvas id="foreground"></canvas>
+        <canvas id="highlight"></canvas>
+        <svg></svg>
+    </div>
+
+    <div class="grid_cell" id="radar-container"></div>
+    <div class="grid_cell" id="stream_graph">
+        <select id="selectStreamGraphDimension" onchange="switchStreamDimension(this.value);"
+                style="position: absolute; z-index: 1;">
+            <option>Choose</option>
+        </select>
+    </div>
+</div>
+<script type="text/javascript">
+    //RadarChart.defaultConfig.levelTick = true;
+</script>
+
+</body>
+<script src="https://underscorejs.org/underscore.js"></script>
+<script src="source/config.js"></script>
+<script src="source/parallel.js"></script>
+<script src="source/stream_graph.js"></script>
+<script type="text/javascript" src="source/radar.js"></script>
 </html>

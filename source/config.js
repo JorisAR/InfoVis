@@ -21,8 +21,6 @@ const color = function(genre, alpha=1) {
     return hsv_to_color(genre, alpha);
 };
 
-
-
 function update(data) {
     updateStreamGraphDropdown();
     drawRadarPlot(data);

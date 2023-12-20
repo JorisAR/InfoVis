@@ -37,8 +37,8 @@ var radarDiv = document.getElementById('radar-container');
 var RadarChart = {
     defaultConfig: {
         containerClass: 'radar-chart',
-        radar_w: radarDiv.clientWidth - 50,
-        radar_h: radarDiv.clientWidth - 50,
+        radar_w: radarDiv.clientWidth * 0.85,
+        radar_h: radarDiv.clientHeight * 0.85,
         factor: 0.95,
         factorLegend: 1,
         levels: 3,
