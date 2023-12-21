@@ -123,7 +123,6 @@ const drawStreamGraph = function (data) {
 // In D3 v3, we use d3.layout.stack()
     const stack = d3.layout.stack()
         .offset("silhouette");
-        // .offset("zero");
 
 // Here's how you can prepare your data for d3.layout.stack()
     const keys = Object.keys(genre_colors);
