@@ -4,8 +4,8 @@ const streamDiv = document.getElementById("stream_graph");
 
 // Set the dimensions and margins of the graph
 const margin = {top: 0, right: 0, bottom: 0, left: 0},
-    streamWidth = streamDiv.clientWidth * .96 - margin.right - margin.left,
-    streamHeight = streamDiv.clientHeight * .96 - margin.top - margin.bottom;
+    streamWidth = streamDiv.clientWidth * .98,
+    streamHeight = streamDiv.clientHeight;
 
 // Append the stream_svg object to the body of the page
 let stream_svg = d3.select("#stream_graph")
@@ -14,7 +14,7 @@ let stream_svg = d3.select("#stream_graph")
     .attr("height", streamHeight)
     .append("g")
     .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
+        "translate(" + streamDiv.clientWidth * -0.05 + "," + streamDiv.clientHeight * 0.05  + ")");
 
 var Tooltip = d3.select("body")
     .append("div")
@@ -122,7 +122,8 @@ const drawStreamGraph = function (data) {
 
 // In D3 v3, we use d3.layout.stack()
     const stack = d3.layout.stack()
-        .offset("zero");
+        .offset("silhouette");
+        // .offset("zero");
 
 // Here's how you can prepare your data for d3.layout.stack()
     const keys = Object.keys(genre_colors);
@@ -194,7 +195,8 @@ const drawStreamGraph = function (data) {
     stream_svg.append("g")
         .attr("transform", "translate(0," + streamHeight * 0.8 + ")")
         .call(d3.svg.axis().scale(x).orient("bottom").tickSize(-streamHeight * .8).ticks(5))
-        .select(".domain").remove()
+        .classed("axis_label", true)
+        .select(".domain").remove();
 
     stream_svg.selectAll(".tick line").attr("stroke", "#b8b8b8")
 
@@ -202,7 +204,8 @@ const drawStreamGraph = function (data) {
         .attr("text-anchor", "end")
         .attr("x", streamWidth * .98)
         .attr("y", streamHeight * .85)
-        .text("Time (year)");
+        .text("Time (year)")
+        .classed("axis_label", true);
 
     // Define the callback function to be called when the brush is moved
     function timeBrushed() {

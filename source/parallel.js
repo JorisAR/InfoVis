@@ -1,7 +1,7 @@
 const parallelDiv = document.getElementById('parallel_chart');
 
-let parallelWidth = parallelDiv.clientWidth * .98;
-let parallelHeight = parallelDiv.clientHeight * .85;
+let parallelWidth = parallelDiv.clientWidth * .95;
+let parallelHeight = parallelDiv.clientHeight * .87;
 
 let searchedData;
 let yearExtents, originalYearExtents;
@@ -658,22 +658,6 @@ d3.select("#hide-ticks").on("click", hide_ticks);
 d3.select("#show-ticks").on("click", show_ticks);
 d3.select("#dark-theme").on("click", dark_theme);
 d3.select("#light-theme").on("click", light_theme);
-
-function hide_ticks() {
-    d3.selectAll(".axis g").style("display", "none");
-    //d3.selectAll(".axis path").style("display", "none");
-    d3.selectAll(".background").style("visibility", "hidden");
-    d3.selectAll("#hide-ticks").attr("disabled", "disabled");
-    d3.selectAll("#show-ticks").attr("disabled", null);
-};
-
-function show_ticks() {
-    d3.selectAll(".axis g").style("display", null);
-    //d3.selectAll(".axis path").style("display", null);
-    d3.selectAll(".background").style("visibility", null);
-    d3.selectAll("#show-ticks").attr("disabled", "disabled");
-    d3.selectAll("#hide-ticks").attr("disabled", null);
-};
 
 function dark_theme() {
     d3.select("body").attr("class", "dark");

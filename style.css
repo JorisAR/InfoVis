@@ -1,21 +1,24 @@
+@font-face {
+  font-family: font;
+  src: url(Roboto-Regular.ttf);
+}
+
+* {
+  font-family: font, Arial, sans-serif;
+}
+
 html, body {
   margin: 0;
   width: 100%;
   height: 100%;
   padding: 0;
 }
-body { 
-  font-family: Ubuntu, Tahoma, Helvetica, sans-serif;
+body {
   font-size: 12px;
   line-height: 1.4em;
-  background: #ffffff;
-  color: #404040;
+  background-color: black;
 }
 
-body.dark {
-  background: #131313;
-  color: #f3f3f3;
-}
 a {
   text-decoration: none;
 }
@@ -70,30 +73,34 @@ canvas, svg {
   width: 200px;
 }
 .axis text {
-  fill: #111;
+  fill: white;
+  color: white;
   text-anchor: middle;
   font-size: 11px;
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  font-weight:bold;
 }
 .axis text.label {
-  color: #040404;
-  font-size: 12px;
-  cursor: move;
-  padding-bottom: 24px;
+  fill: white;
+  color: white;
+  text-anchor: middle;
+  font-size: 15px;
+  font-weight:bold;
 }
 
 .radar_axis text {
-  fill: #111;
+  fill: white;
+  color: white;
   text-anchor: middle;
-  font-size: 12px;
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  font-size: 15px;
+  font-weight:bold;
 }
 
 .axis_label {
-  fill: #111;
+  fill: white;
+  color: white;
   text-anchor: middle;
-  font-size: 15px;
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  font-size: 11px;
+  font-weight:bold;
 }
 
 
@@ -290,14 +297,29 @@ button#exclude-data:hover {
   grid-template-rows: repeat(18, 5%);
   grid-gap: .5%;
   padding: .5%;
-  background-color: #ccc3c3;
+  background-color: black;
+  /*background: linear-gradient(0deg, #17251b, #101311);*/
 }
 
 .grid_cell {
-  background-color: white;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* horizontal offset, vertical offset, blur radius, color */
+  position: relative;
+  color: white;
+  background: #191414;
+  box-shadow: 0px 0px 2px rgba(148, 148, 148, 0.5); /* horizontal offset, vertical offset, blur radius, color */
   border-radius: 10px; /* adjust as needed */
   padding: 2.5%;
+}
+
+.grid_cell h1 {
+  position: absolute;
+  margin: 5px 5px 0 0;
+  top: 2%;
+  left: .5%;
+}
+
+.no-wrap {
+  white-space: nowrap; /* prevent the text from breaking into multiple lines */
+  overflow: hidden; /* hide the overflowed text */
 }
 
 #landing_page {
@@ -311,8 +333,8 @@ button#exclude-data:hover {
 
 #genre-list {
   overflow: auto;
-  color: black;
-  font-size: 10px;
+  color: white;
+  font-size: 12px;
 }
 
 #genre-selector {
@@ -345,3 +367,35 @@ svg, canvas {
   max-width: 100%;
 }
 
+input[type=text] {
+  width: 50%; /* set the width of the input field */
+  padding: 10px; /* add space inside the input field */
+  border: 0px; /* change the border size and color */
+  border-radius: 4px; /* add rounded corners */
+  /*background-color: #191414; !* set the background color *!*/
+  color: white;
+  outline: none;
+  background: linear-gradient(white, #808080) center bottom 5px /calc(100% - 20px) 2px no-repeat; /* add an underline */
+}
+
+/* Style the dropdown button */
+select {
+  position: absolute;
+  top: -10px;
+  padding: 10px; /* add space inside the dropdown */
+  border: 0; /* remove the border */
+  background: linear-gradient(white, #808080) center bottom 5px /calc(100% - 20px) 2px no-repeat; /* add an underline */
+  color: white; /* set the text color */
+}
+
+/* Style the dropdown options */
+select option {
+  border: 0; /* remove the border */
+  background-color: #191414; /* set the background color of the options */
+  color: white; /* set the text color of the options */
+}
+
+/* Change the background color of the options on hover */
+select option:hover {
+  background-color: #f1f1f1; /* set the background color of the hovered option */
+}

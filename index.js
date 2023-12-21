@@ -111,3 +111,32 @@ document.addEventListener('dataUpdated', function (e) {
     update(activeData);
 }, false);
 
+function hide_ticks() {
+    //parallel
+    d3.selectAll(".axis g").style("display", "none");
+    d3.selectAll(".background").style("visibility", "hidden");
+    d3.selectAll("#hide-ticks").attr("disabled", "disabled");
+    d3.selectAll("#show-ticks").attr("disabled", null);
+
+    //stream_graph
+    d3.selectAll(".tick line").style("display", "none");
+    d3.selectAll(".tick text").style("display", "none");
+
+    //radar plot
+    d3.selectAll(".radar_axis").style("display", "none");
+
+};
+
+function show_ticks() {
+    //parallel
+    d3.selectAll(".axis g").style("display", null);
+    d3.selectAll(".background").style("visibility", null);
+    d3.selectAll("#show-ticks").attr("disabled", "disabled");
+    d3.selectAll("#hide-ticks").attr("disabled", null);
+
+    //stream_graph
+    d3.selectAll(".tick line").style("display", null);
+    d3.selectAll(".tick text").style("display", null);
+    //radar plot
+    d3.selectAll(".radar_axis").style("display", null);
+};
